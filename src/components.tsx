@@ -1,6 +1,6 @@
-import { Camera, Download, Images, Menu, Sparkles, X } from "lucide-react";
-import { NavLink } from "react-router-dom";
-import { useState, type ReactNode } from "react";
+import { Camera, Download, House, Images, Menu, Sparkles, X } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 export function Logo() {
   return (
     <NavLink to="/" className="logo">
@@ -44,6 +44,89 @@ export function Shell({ children }: { children: ReactNode }) {
       </header>
       <main>{children}</main>
     </div>
+  );
+}
+
+export function MobileBottomNav() {
+  const { pathname } = useLocation();
+  const boothActive = pathname === "/booth" || pathname === "/edit" || pathname === "/export";
+  const items = [
+    { to: "/", label: "Home", Icon: House, active: pathname === "/" },
+    { to: "/booth", label: "Booth", Icon: Camera, active: boothActive },
+    { to: "/gallery", label: "Gallery", Icon: Images, active: pathname === "/gallery" },
+    { to: "/features", label: "Features", Icon: Sparkles, active: pathname === "/features" },
+  ];
+  return (
+    <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">
+      {items.map(({ to, label, Icon, active }) => (
+        <NavLink key={to} to={to} className={active ? "active" : ""} aria-current={active ? "page" : undefined}>
+          <Icon aria-hidden="true" />
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+type SheetSnap = "collapsed" | "half" | "full";
+
+export function BottomSheet({
+  title,
+  open,
+  onClose,
+  className = "",
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onClose: () => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  const [snap, setSnap] = useState<SheetSnap>("half");
+  const startY = useRef(0);
+  useEffect(() => {
+    if (open) setSnap("half");
+  }, [open]);
+  const moveSnap = (direction: -1 | 1) => {
+    const snaps: SheetSnap[] = ["collapsed", "half", "full"];
+    const next = Math.min(2, Math.max(0, snaps.indexOf(snap) + direction));
+    setSnap(snaps[next]);
+  };
+  return (
+    <aside className={`${className} mobile-sheet ${open ? "is-open" : ""} snap-${snap}`} aria-label={title}>
+      <div
+        className="mobile-sheet-grab"
+        role="button"
+        tabIndex={0}
+        aria-label={`${title}. Swipe or press Enter to resize.`}
+        onClick={() => setSnap((value) => value === "collapsed" ? "half" : value === "half" ? "full" : "half")}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setSnap((value) => value === "collapsed" ? "half" : value === "half" ? "full" : "half");
+          }
+          if (event.key === "ArrowUp") moveSnap(1);
+          if (event.key === "ArrowDown") moveSnap(-1);
+          if (event.key === "Escape") onClose();
+        }}
+        onPointerDown={(event) => {
+          startY.current = event.clientY;
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }}
+        onPointerUp={(event) => {
+          const distance = startY.current - event.clientY;
+          if (Math.abs(distance) > 42) moveSnap(distance > 0 ? 1 : -1);
+        }}
+      >
+        <i aria-hidden="true" />
+      </div>
+      <div className="mobile-sheet-heading">
+        <b>{title}</b>
+        <button type="button" onClick={onClose} aria-label={`Close ${title}`}><X /></button>
+      </div>
+      <div className="mobile-sheet-content">{children}</div>
+    </aside>
   );
 }
 export function SectionTitle({

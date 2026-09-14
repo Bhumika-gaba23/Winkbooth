@@ -6,6 +6,7 @@ import {
   ImagePlus,
   Lightbulb,
   RotateCcw,
+  SlidersHorizontal,
   Timer,
   Upload,
   Zap,
@@ -14,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCamera } from "../camera";
 import { filters, frames, layouts } from "../catalog";
-import { Button, Shell, SectionTitle } from "../components";
+import { BottomSheet, Button, Shell, SectionTitle } from "../components";
 import { useBooth } from "../store";
 import type { BoothMode } from "../types";
 export default function Booth() {
@@ -34,6 +35,7 @@ export default function Booth() {
     [boomerang, setBoomerang] = useState(false),
     [flash, setFlash] = useState(false),
     [filterPicker, setFilterPicker] = useState(false),
+    [mobileToolsOpen, setMobileToolsOpen] = useState(false),
     [formatRail, setFormatRail] = useState({ atStart: true, atEnd: false }),
     [coverRail, setCoverRail] = useState({ atStart: true, atEnd: false }),
     file = useRef<HTMLInputElement>(null),
@@ -365,8 +367,13 @@ export default function Booth() {
                 </button>
               ))}
             </div>
+            <button className="mobile-tool-launch" type="button" onClick={() => setMobileToolsOpen(true)}>
+              <SlidersHorizontal />
+              <span><b>Style this roll</b><small>{filters.find((f) => f.id === session.filterId)?.name ?? "None"} · {layout.name}</small></span>
+              <i>+</i>
+            </button>
           </div>
-          <aside className="booth-panel">
+          <BottomSheet className="booth-panel" title="Roll settings" open={mobileToolsOpen} onClose={() => setMobileToolsOpen(false)}>
             <Tool title="Filter">
               <button className="filter-launch" onClick={() => setFilterPicker(true)}>
                 <span className="filter-launch-thumb" style={{ filter: filters.find((f) => f.id === session.filterId)?.css }} />
@@ -462,7 +469,7 @@ export default function Booth() {
                 </div>
               </Tool>
             )}
-          </aside>
+          </BottomSheet>
         </div>
         {filterPicker && (
           <div className="filter-picker-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFilterPicker(false); }}>

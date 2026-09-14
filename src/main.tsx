@@ -9,6 +9,7 @@ import ExportPage from "./pages/Export";
 import Gallery from "./pages/Gallery";
 import { Privacy, Terms } from "./pages/Legal";
 import MusicPlayer from "./MusicPlayer";
+import { MobileBottomNav } from "./components";
 import "./styles.css";
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="*" element={<Home />} />
       </Routes>
       <MusicPlayer />
+      <MobileBottomNav />
     </BrowserRouter>
   );
 }

@@ -1,8 +1,8 @@
-import { Copy, Redo2, RotateCcw, Trash2, Undo2 } from "lucide-react";
+import { Copy, Redo2, RotateCcw, SlidersHorizontal, Trash2, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { effects, filters, frames, layouts } from "../catalog";
-import { Button, Shell, SectionTitle } from "../components";
+import { BottomSheet, Button, Shell, SectionTitle } from "../components";
 import { compose } from "../render";
 import { useBooth } from "../store";
 import type { CaptureSession, OverlayLayer } from "../types";
@@ -19,7 +19,8 @@ export default function Edit() {
     [tab, setTab] = useState("Filter"),
     [selected, setSelected] = useState<string>(),
     [history, setHistory] = useState<CaptureSession[]>([]),
-    [future, setFuture] = useState<CaptureSession[]>([]);
+    [future, setFuture] = useState<CaptureSession[]>([]),
+    [mobileToolsOpen, setMobileToolsOpen] = useState(true);
   const layout = layouts.find((item) => item.id === session.layoutId) ?? layouts[0];
   const previewWidth = Math.min(540, 700 * (layout.width / layout.height));
   const previewRef = useRef<HTMLDivElement>(null);
@@ -174,8 +175,13 @@ export default function Edit() {
                 <Redo2 /> Redo
               </Button>
             </div>
+            <button className="mobile-tool-launch edit-tool-launch" type="button" onClick={() => setMobileToolsOpen(true)}>
+              <SlidersHorizontal />
+              <span><b>Open editing tools</b><small>{tab} · {session.overlays.length} layers</small></span>
+              <i>+</i>
+            </button>
           </div>
-          <aside className="style-panel">
+          <BottomSheet className="style-panel" title="Editing tools" open={mobileToolsOpen} onClose={() => setMobileToolsOpen(false)}>
             <div className="style-tabs">
               {["Filter", "Effect", "Stickers", "Cover", "Brand"].map((x) => (
                 <button
@@ -420,7 +426,7 @@ export default function Edit() {
                 </div>
               </div>
             )}
-          </aside>
+          </BottomSheet>
         </div>
       </section>
     </Shell>
