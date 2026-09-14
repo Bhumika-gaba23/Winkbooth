@@ -1,4 +1,4 @@
-import { Copy, Redo2, RotateCcw, SlidersHorizontal, Trash2, Undo2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy, Redo2, RotateCcw, SlidersHorizontal, Trash2, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { effects, filters, frames, layouts } from "../catalog";
@@ -24,6 +24,7 @@ export default function Edit() {
   const layout = layouts.find((item) => item.id === session.layoutId) ?? layouts[0];
   const previewWidth = Math.min(540, 700 * (layout.width / layout.height));
   const previewRef = useRef<HTMLDivElement>(null);
+  const filterRailRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     id: string;
     start: CaptureSession;
@@ -196,17 +197,25 @@ export default function Edit() {
             {tab === "Filter" && (
               <>
                 <h2 className="filter-panel-title">Choose filter</h2>
-                <div className="scroll-options">
-                  {filters.map((f) => (
-                    <button
-                      className={session.filterId === f.id ? "selected" : ""}
-                      onClick={() => change({ filterId: f.id })}
-                      key={f.id}
-                    >
-                      <span style={{ filter: f.css }} />
-                      <small>{f.name}</small>
-                    </button>
-                  ))}
+                <div className="filter-rail">
+                  <button className="filter-rail-arrow filter-rail-arrow-left" type="button" aria-label="Scroll filters left" onClick={() => filterRailRef.current?.scrollBy({ left: -190, behavior: "smooth" })}>
+                    <ChevronLeft aria-hidden="true" />
+                  </button>
+                  <div className="scroll-options" ref={filterRailRef}>
+                    {filters.map((f) => (
+                      <button
+                        className={session.filterId === f.id ? "selected" : ""}
+                        onClick={() => change({ filterId: f.id })}
+                        key={f.id}
+                      >
+                        <span style={{ filter: f.css }} />
+                        <small>{f.name}</small>
+                      </button>
+                    ))}
+                  </div>
+                  <button className="filter-rail-arrow filter-rail-arrow-right" type="button" aria-label="Scroll filters right" onClick={() => filterRailRef.current?.scrollBy({ left: 190, behavior: "smooth" })}>
+                    <ChevronRight aria-hidden="true" />
+                  </button>
                 </div>
                 <label className="range wink-intensity">
                   <span className="wink-intensity-label">Intensity <b>{Math.round(session.filterIntensity * 100)}%</b></span>

@@ -2461,3 +2461,45 @@ body { background: #fff0f5; }
   .wink-intensity-thumb,
   .wink-intensity-track i { transition: none; }
 }
+
+/* Filter previews remain swipeable, with tactile corner nudges for desktop
+   trackpads and users who prefer buttons over horizontal dragging. */
+.filter-rail { position: relative; min-width: 0; }
+.filter-rail .scroll-options {
+  margin-inline: 29px;
+  padding-inline: 4px;
+  scroll-padding-inline: 4px;
+  overscroll-behavior-inline: contain;
+}
+.filter-rail-arrow {
+  position: absolute;
+  z-index: 3;
+  top: 31px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  color: var(--ink);
+  background: rgba(255,248,251,.96);
+  box-shadow: 2px 3px 0 rgba(81,36,55,.2);
+  cursor: pointer;
+  transition: transform .18s ease, background-color .18s ease;
+}
+.filter-rail-arrow:hover { transform: translateY(-2px); background: var(--yellow); }
+.filter-rail-arrow:active { transform: translateY(1px) scale(.95); }
+.filter-rail-arrow:focus-visible { outline: 3px solid rgba(217,87,131,.35); outline-offset: 2px; }
+.filter-rail-arrow svg { width: 19px; height: 19px; }
+.filter-rail-arrow-left { left: -4px; }
+.filter-rail-arrow-right { right: -4px; }
+@media (max-width: 640px) {
+  .filter-rail .scroll-options { margin-inline: 24px; }
+  .filter-rail-arrow { top: 30px; width: 32px; height: 32px; }
+  .filter-rail-arrow-left { left: -2px; }
+  .filter-rail-arrow-right { right: -2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .filter-rail-arrow { transition: none; }
+}
