@@ -9,11 +9,12 @@ import ExportPage from "./pages/Export";
 import Gallery from "./pages/Gallery";
 import { Privacy, Terms } from "./pages/Legal";
 import MusicPlayer from "./MusicPlayer";
-import { MobileBottomNav } from "./components";
+import { AppLoadingScreen, MobileBottomNav } from "./components";
 import "./styles.css";
 function App() {
   return (
     <BrowserRouter>
+      <AppLoadingScreen />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/features" element={<Features />} />

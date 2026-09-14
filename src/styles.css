@@ -2312,3 +2312,81 @@ body { background: #fff0f5; }
   .mobile-sheet-heading button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: #fff; }
   .mobile-sheet-content { display: block; height: calc(100% - 43px); overflow-y: auto; }
 }
+
+/* Monochrome darkroom intro. The camera face performs one deliberate wink
+   before the paper screen lifts to reveal the app. */
+.app-loader {
+  position: fixed;
+  z-index: 5000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #241f21;
+  background: #f8f5f2;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .38s ease, visibility .38s ease;
+}
+.app-loader.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+.app-loader-grain {
+  position: absolute;
+  inset: 0;
+  opacity: .1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.38'/%3E%3C/svg%3E");
+  animation: loader-grain .22s steps(2) infinite;
+}
+.app-loader-lockup { position: relative; display: grid; justify-items: center; padding: 28px; }
+.app-loader-mark { position: relative; width: clamp(94px, 25vw, 132px); filter: drop-shadow(5px 7px 0 rgba(36,31,33,.12)); }
+.app-loader-mark svg { display: block; width: 100%; overflow: visible; }
+.loader-camera-paper { fill: #f8f5f2; stroke: #241f21; stroke-width: 10; stroke-linejoin: round; }
+.loader-camera-screen { fill: #241f21; }
+.loader-eye-open { fill: #f8f5f2; transform-box: fill-box; transform-origin: center; animation: loader-wink-open 1.35s cubic-bezier(.65,0,.35,1) both; }
+.loader-eye-wink { fill: none; stroke: #f8f5f2; stroke-width: 8; stroke-linecap: round; opacity: 0; animation: loader-wink-line 1.35s cubic-bezier(.65,0,.35,1) both; }
+.loader-eye-spark, .loader-smile { fill: none; stroke: #f8f5f2; stroke-linecap: round; stroke-linejoin: round; }
+.loader-eye-spark { stroke-width: 9; }
+.loader-smile { stroke-width: 8; }
+.loader-slot { stroke: #241f21; stroke-width: 8; stroke-linecap: round; }
+.app-loader-camera { transform-box: fill-box; transform-origin: center; animation: loader-camera-bob 1.35s cubic-bezier(.22,.75,.25,1) both; }
+.loader-flash { position: absolute; display: block; width: 4px; height: 17px; border-radius: 99px; background: #241f21; opacity: 0; transform-origin: 50% 76px; animation: loader-flash .55s ease .72s both; }
+.loader-flash-one { left: 8px; top: -3px; transform: rotate(-48deg); }
+.loader-flash-two { left: 50%; top: -20px; transform: rotate(0deg); }
+.loader-flash-three { right: 4px; top: -2px; transform: rotate(48deg); }
+.app-loader-wordmark { margin-top: 19px; font: 400 clamp(30px, 8vw, 42px)/1 "DM Sans", sans-serif; letter-spacing: -.075em; }
+.app-loader-wordmark b { font-weight: 700; }
+.app-loader-caption { margin-top: 9px; font: 600 9px/1 "DM Sans", sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+.app-loader-progress { width: 132px; height: 2px; margin-top: 24px; overflow: hidden; background: rgba(36,31,33,.16); }
+.app-loader-progress i { display: block; width: 100%; height: 100%; background: #241f21; transform-origin: left; animation: loader-progress 1.35s cubic-bezier(.65,0,.35,1) both; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+@keyframes loader-wink-open {
+  0%, 40%, 75%, 100% { transform: scaleY(1); opacity: 1; }
+  52%, 64% { transform: scaleY(.08); opacity: 0; }
+}
+@keyframes loader-wink-line {
+  0%, 42%, 74%, 100% { opacity: 0; }
+  53%, 64% { opacity: 1; }
+}
+@keyframes loader-camera-bob {
+  0% { transform: translateY(8px) rotate(-4deg); opacity: 0; }
+  24% { transform: translateY(0) rotate(0); opacity: 1; }
+  54% { transform: translateY(-3px) rotate(-1.5deg); }
+  72%, 100% { transform: translateY(0) rotate(0); }
+}
+@keyframes loader-flash {
+  0% { opacity: 0; scale: .5; }
+  45% { opacity: .9; scale: 1; }
+  100% { opacity: 0; scale: 1.2; }
+}
+@keyframes loader-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes loader-grain { 0% { transform: translate(0); } 50% { transform: translate(-1%, 1%); } 100% { transform: translate(1%, -1%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loader-grain,
+  .loader-eye-open,
+  .loader-eye-wink,
+  .app-loader-camera,
+  .loader-flash,
+  .app-loader-progress i { animation: none !important; }
+  .app-loader { transition-duration: .15s; }
+}

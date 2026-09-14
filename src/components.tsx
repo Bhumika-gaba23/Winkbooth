@@ -9,6 +9,49 @@ export function Logo() {
     </NavLink>
   );
 }
+
+export function AppLoadingScreen() {
+  const [phase, setPhase] = useState<"visible" | "leaving" | "hidden">("visible");
+
+  useEffect(() => {
+    const beginExit = window.setTimeout(() => setPhase("leaving"), 1450);
+    const remove = window.setTimeout(() => setPhase("hidden"), 1850);
+    return () => {
+      window.clearTimeout(beginExit);
+      window.clearTimeout(remove);
+    };
+  }, []);
+
+  if (phase === "hidden") return null;
+
+  return (
+    <div className={`app-loader ${phase === "leaving" ? "is-leaving" : ""}`} role="status" aria-live="polite" aria-label="WinkBooth is loading">
+      <div className="app-loader-grain" aria-hidden="true" />
+      <div className="app-loader-lockup" aria-hidden="true">
+        <div className="app-loader-mark">
+          <svg viewBox="0 0 256 256">
+            <g className="app-loader-camera" transform="rotate(5 128 128)">
+              <path d="M48 38h151a15 15 0 0 1 15 15v142a15 15 0 0 1-15 15H48a15 15 0 0 1-15-15V53a15 15 0 0 1 15-15Z" className="loader-camera-paper" />
+              <path d="M62 59h123v103H62z" className="loader-camera-screen" />
+              <ellipse className="loader-eye-open" cx="91" cy="103" rx="10" ry="19" />
+              <path className="loader-eye-wink" d="M80 104q11 9 22 0" />
+              <path d="m129 104 20-12M129 104l20 8" className="loader-eye-spark" />
+              <path d="M91 137q31 28 61-1" className="loader-smile" />
+              <path d="M107 179h25" className="loader-slot" />
+            </g>
+          </svg>
+          <i className="loader-flash loader-flash-one" />
+          <i className="loader-flash loader-flash-two" />
+          <i className="loader-flash loader-flash-three" />
+        </div>
+        <div className="app-loader-wordmark"><b>wink</b>booth</div>
+        <div className="app-loader-caption">developing something lovely</div>
+        <div className="app-loader-progress"><i /></div>
+      </div>
+      <span className="sr-only">Loading WinkBooth</span>
+    </div>
+  );
+}
 export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
