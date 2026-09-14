@@ -2390,3 +2390,74 @@ body { background: #fff0f5; }
   .app-loader-progress i { animation: none !important; }
   .app-loader { transition-duration: .15s; }
 }
+
+/* The filter intensity slider uses the WinkBooth face as its animated thumb. */
+.range.wink-intensity {
+  display: grid;
+  grid-template-columns: 92px minmax(150px, 1fr);
+  gap: 16px;
+  width: 100%;
+  min-height: 52px;
+  margin: 18px 0 8px;
+}
+.wink-intensity-label { display: flex; align-items: center; gap: 6px; }
+.wink-intensity-label b { color: var(--pink); font-size: 10px; font-variant-numeric: tabular-nums; }
+.wink-intensity-control { position: relative; height: 52px; display: block; }
+.wink-intensity-track {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 24px;
+  height: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(81,36,55,.3);
+  border-radius: 99px;
+  background: #f6dce5;
+}
+.wink-intensity-track i { display: block; height: 100%; border-radius: inherit; background: var(--ink); transition: width .12s ease; }
+.wink-intensity-thumb {
+  position: absolute;
+  z-index: 2;
+  top: 4px;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+  filter: drop-shadow(2px 3px 0 rgba(81,36,55,.18));
+  transition: left .12s ease, transform .12s ease;
+}
+.wink-intensity-thumb svg { width: 100%; height: 100%; overflow: visible; fill: #fff8fb; stroke: var(--ink); stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; }
+.wink-intensity-thumb .wink-thumb-screen { fill: var(--ink); }
+.wink-intensity-thumb .wink-thumb-eye { fill: #fff8fb; stroke: none; transform-box: fill-box; transform-origin: center; animation: intensity-wink-eye 2.8s ease-in-out infinite; }
+.wink-intensity-thumb .wink-thumb-wink,
+.wink-intensity-thumb .wink-thumb-smile { fill: none; stroke: #fff8fb; stroke-width: 2.5; }
+.wink-intensity-thumb .wink-thumb-wink { animation: intensity-wink-nudge 2.8s ease-in-out infinite; }
+.wink-intensity-control input[type="range"] {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+}
+.wink-intensity-control:focus-within .wink-intensity-thumb { outline: 3px solid rgba(217,87,131,.34); outline-offset: 2px; border-radius: 10px; }
+.wink-intensity-control:active .wink-intensity-thumb { scale: 1.08; }
+@keyframes intensity-wink-eye {
+  0%, 42%, 54%, 100% { transform: scaleY(1); }
+  47%, 50% { transform: scaleY(.08); }
+}
+@keyframes intensity-wink-nudge {
+  0%, 42%, 54%, 100% { transform: rotate(0); }
+  47%, 50% { transform: rotate(-5deg); }
+}
+@media (max-width: 640px) {
+  .range.wink-intensity { grid-template-columns: 1fr; gap: 2px; margin-top: 12px; }
+  .wink-intensity-label { justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wink-intensity-thumb .wink-thumb-eye,
+  .wink-intensity-thumb .wink-thumb-wink { animation: none; }
+  .wink-intensity-thumb,
+  .wink-intensity-track i { transition: none; }
+}

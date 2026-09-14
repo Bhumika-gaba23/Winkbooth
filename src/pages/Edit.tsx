@@ -208,18 +208,41 @@ export default function Edit() {
                     </button>
                   ))}
                 </div>
-                <label className="range">
-                  Intensity{" "}
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step=".05"
-                    value={session.filterIntensity}
-                    onChange={(e) =>
-                      change({ filterIntensity: +e.target.value })
-                    }
-                  />
+                <label className="range wink-intensity">
+                  <span className="wink-intensity-label">Intensity <b>{Math.round(session.filterIntensity * 100)}%</b></span>
+                  <span className="wink-intensity-control">
+                    <span className="wink-intensity-track" aria-hidden="true">
+                      <i style={{ width: `${session.filterIntensity * 100}%` }} />
+                    </span>
+                    <span
+                      className="wink-intensity-thumb"
+                      style={{
+                        left: `${session.filterIntensity * 100}%`,
+                        transform: `translateX(-${session.filterIntensity * 100}%)`,
+                      }}
+                      aria-hidden="true"
+                    >
+                      <svg viewBox="0 0 64 64">
+                        <rect x="7" y="8" width="50" height="48" rx="8" />
+                        <rect className="wink-thumb-screen" x="15" y="16" width="34" height="27" rx="2" />
+                        <ellipse className="wink-thumb-eye" cx="25" cy="28" rx="3" ry="5" />
+                        <path className="wink-thumb-wink" d="M35 28l7-4m-7 4 7 4" />
+                        <path className="wink-thumb-smile" d="M24 35q8 7 16 0" />
+                        <path d="M27 49h10" />
+                      </svg>
+                    </span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step=".05"
+                      value={session.filterIntensity}
+                      aria-label="Filter intensity"
+                      onChange={(e) =>
+                        change({ filterIntensity: +e.target.value })
+                      }
+                    />
+                  </span>
                 </label>
               </>
             )}
