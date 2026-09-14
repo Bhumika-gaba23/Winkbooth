@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title>WinkBooth winking instant camera</title>
+  <g transform="rotate(5 128 128)">
+    <path d="M48 38h151a15 15 0 0 1 15 15v142a15 15 0 0 1-15 15H48a15 15 0 0 1-15-15V53a15 15 0 0 1 15-15Z" fill="#fffdfd" stroke="#161313" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M62 59h123v103H62z" fill="#161313"/>
+    <ellipse cx="91" cy="103" rx="10" ry="19" fill="#fff"/>
+    <path d="m129 104 20-12M129 104l20 8" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M91 137q31 28 61-1" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+    <path d="M107 179h25" stroke="#161313" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>
