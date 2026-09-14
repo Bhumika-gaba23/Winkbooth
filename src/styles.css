@@ -2155,13 +2155,50 @@ body { background: #fff0f5; }
 
 /* Authoritative phone overrides after all legacy responsive rules. */
 @media (max-width: 640px) {
+  html,
+  body,
+  #root,
+  .app-shell,
+  .app-shell main { width: 100%; max-width: 100%; min-width: 0; }
+  html,
+  body { overflow-x: clip; }
   .page,
   .hero,
   .catalog-section,
   .booth-grid,
   .booth-grid > *,
   .shutter-row { min-width: 0; max-width: 100%; }
+  .hero {
+    width: 100%;
+    display: block;
+    padding: 34px clamp(16px, 4.5vw, 20px) 20px;
+    overflow: hidden;
+  }
+  .hero-copy { width: 100%; min-width: 0; max-width: 100%; }
+  .hero h1 {
+    width: 100%;
+    max-width: 100%;
+    margin: 15px 0;
+    font-size: clamp(40px, 11.5vw, 50px);
+    line-height: 1.02;
+    letter-spacing: -.055em;
+    overflow-wrap: normal;
+  }
+  .hero-copy > p { width: 100%; max-width: 100%; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+  .hero-actions { width: 100%; max-width: 100%; display: grid; grid-template-columns: 1fr; align-items: stretch; }
   .hero-actions .button { box-sizing: border-box; max-width: 100%; }
+  .hero-actions .button { width: 100%; margin: 0; }
+  .trust { width: 100%; max-width: 100%; }
+  .hero-stack.contact-sheet {
+    width: min(280px, calc(100vw - 52px));
+    max-width: calc(100vw - 52px);
+    height: 310px;
+    margin: -12px auto -20px;
+    transform: rotate(1deg);
+  }
+  .contact-sheet .strip-card.front { width: 100%; min-width: 0; }
+  .contact-sheet .doodle { right: -12px; max-width: 92px; padding: 8px; font-size: 11px; }
+  .contact-sheet:after { right: 10px; font-size: 7px; }
   .shutter-row { overflow: hidden; }
   .shutter-row > .button { min-width: 0; overflow: hidden; }
   .page, .catalog-section { padding: 26px 16px calc(96px + env(safe-area-inset-bottom)); }
@@ -2178,6 +2215,16 @@ body { background: #fff0f5; }
   .filter-picker h2 { font-size: 28px; }
   .filter-picker header button { right: 0; top: 0; width: 42px; height: 42px; }
   .filter-picker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 11px; }
+}
+
+@media (max-width: 380px) {
+  .hero h1 { font-size: 40px; }
+  .hero-copy > p { font-size: 15px; }
+  .wink-wordmark { font-size: 21px; }
+  .mobile-bottom-nav { left: 6px; right: 6px; }
+  .mobile-bottom-nav a { font-size: 9px; }
+  .frame-grid { grid-template-columns: 1fr; }
+  .frame-art { height: 250px; }
 }
 
 /* Phone-class landscape can be wider than the portrait breakpoint. */
