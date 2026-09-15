@@ -313,7 +313,15 @@ export default function Booth() {
               </button>
             </div>
             <div className="shutter-row">
-              <Button onClick={cam.status === "ready" ? cam.stop : cam.start}>
+              <Button onClick={() => {
+                if (cam.status === "ready") {
+                  cam.stop();
+                  setFaceFilter(undefined);
+                  setFaceFilterSize(1);
+                } else {
+                  void cam.start();
+                }
+              }}>
                 {cam.status === "ready" ? (
                   <>
                     <CameraOff /> Cam off
