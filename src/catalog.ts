@@ -6,6 +6,19 @@ const stack = (n: number): Slot[] =>
     w: 0.88,
     h: 0.78 / n,
   }));
+const contactGrid = (count: number, columns: number): Slot[] => {
+  const rows = Math.ceil(count / columns);
+  return Array.from({ length: count }, (_, i) => {
+    const column = i % columns;
+    const row = Math.floor(i / columns);
+    return {
+      x: 0.03 + column * (0.94 / columns),
+      y: 0.03 + row * (0.9 / rows),
+      w: 0.94 / columns - 0.015,
+      h: 0.9 / rows - 0.015,
+    };
+  });
+};
 export const layouts: LayoutSpec[] = [
   {
     id: "strip2",
@@ -38,6 +51,46 @@ export const layouts: LayoutSpec[] = [
     description: "The timeless four-shot",
   },
   {
+    id: "strip5",
+    name: "Strip · 5 Pose",
+    size: "2×6",
+    width: 600,
+    height: 1800,
+    slots: stack(5),
+    category: "Strip",
+    description: "Five moments, still roomy",
+  },
+  {
+    id: "strip6",
+    name: "Strip · 6 Pose",
+    size: "2×6",
+    width: 600,
+    height: 1800,
+    slots: stack(6),
+    category: "Strip",
+    description: "Six classic moments",
+  },
+  {
+    id: "strip7",
+    name: "Strip · 7 Pose",
+    size: "2×6",
+    width: 600,
+    height: 1800,
+    slots: stack(7),
+    category: "Strip",
+    description: "A full little roll",
+  },
+  {
+    id: "strip8",
+    name: "Strip · 8 Pose",
+    size: "2×6",
+    width: 600,
+    height: 1800,
+    slots: stack(8),
+    category: "Strip",
+    description: "The complete eight-shot",
+  },
+  {
     id: "grid4",
     name: "4R · 4 Pose Grid",
     size: "4×6",
@@ -51,6 +104,46 @@ export const layouts: LayoutSpec[] = [
     ],
     category: "4R",
     description: "A balanced 2×2 grid",
+  },
+  {
+    id: "grid5",
+    name: "4R · 5 Pose Grid",
+    size: "4×6",
+    width: 1200,
+    height: 1800,
+    slots: contactGrid(5, 3),
+    category: "4R",
+    description: "Three above, two below",
+  },
+  {
+    id: "grid6",
+    name: "4R · 6 Pose Grid",
+    size: "4×6",
+    width: 1200,
+    height: 1800,
+    slots: contactGrid(6, 3),
+    category: "4R",
+    description: "A balanced 3×2 grid",
+  },
+  {
+    id: "grid7",
+    name: "4R · 7 Pose Grid",
+    size: "4×6",
+    width: 1200,
+    height: 1800,
+    slots: contactGrid(7, 4),
+    category: "4R",
+    description: "Four above, three below",
+  },
+  {
+    id: "grid8",
+    name: "4R · 8 Pose Grid",
+    size: "4×6",
+    width: 1200,
+    height: 1800,
+    slots: contactGrid(8, 4),
+    category: "4R",
+    description: "A full 4×2 contact sheet",
   },
   {
     id: "split4",
@@ -268,4 +361,10 @@ export const effects = [
   { id: "sparkle", name: "Sparkle" },
   { id: "heart-crown", name: "Heart Crown" },
   { id: "halftone", name: "Halftone" },
+  { id: "soft-focus", name: "Soft Focus" },
+  { id: "warm-glow", name: "Warm Glow" },
+  { id: "cool-dream", name: "Cool Dream" },
+  { id: "high-contrast", name: "High Contrast" },
+  { id: "faded-film", name: "Faded Film" },
+  { id: "light-leak", name: "Light Leak" },
 ];

@@ -18,6 +18,18 @@ import { filters, frames, layouts } from "../catalog";
 import { BottomSheet, Button, Shell, SectionTitle } from "../components";
 import { useBooth } from "../store";
 import type { BoothMode } from "../types";
+const faceOptions = [
+  { id: "puppy", name: "Puppy", symbol: "⌒⌒" },
+  { id: "kitty", name: "Kitty", symbol: "▲ ▲" },
+  { id: "bunny", name: "Bunny", symbol: "∩ ∩" },
+  { id: "hearts", name: "Heart crown", symbol: "♥ ♥ ♥" },
+  { id: "stars", name: "Star crown", symbol: "★ ★ ★" },
+  { id: "blush", name: "Sweet blush", symbol: "♡   ♡" },
+  { id: "goggles", name: "Bubble goggles", symbol: "◉—◉" },
+  { id: "sunnies", name: "Swag shades", symbol: "◕—◕" },
+  { id: "flower", name: "Flower crown", symbol: "✿ ✿ ✿" },
+  { id: "freckles", name: "Cute freckles", symbol: "· · ·" },
+];
 export default function Booth() {
   const { session, setSession } = useBooth(),
     layout = layouts.find((x) => x.id === session.layoutId) ?? layouts[0],
@@ -34,6 +46,9 @@ export default function Booth() {
     [autoTimer, setAutoTimer] = useState(2),
     [boomerang, setBoomerang] = useState(false),
     [flash, setFlash] = useState(false),
+    [faceFilter, setFaceFilter] = useState<string>(),
+    [faceFilterSize, setFaceFilterSize] = useState(1),
+    [shadeColor, setShadeColor] = useState("#f06f9f"),
     [filterPicker, setFilterPicker] = useState(false),
     [mobileToolsOpen, setMobileToolsOpen] = useState(false),
     [formatRail, setFormatRail] = useState({ atStart: true, atEnd: false }),
@@ -43,7 +58,8 @@ export default function Booth() {
     coverRailRef = useRef<HTMLDivElement>(null),
     nav = useNavigate(),
     [params] = useSearchParams();
-  const cam = useCamera(facing, session.mirror);
+  const activeFilterCss = filters.find((filter) => filter.id === session.filterId)?.css ?? "none";
+  const cam = useCamera(facing, session.mirror, faceFilter, faceFilterSize, activeFilterCss, shadeColor);
   const updateFormatRail = () => {
     const rail = layoutRail.current;
     if (!rail) return;
@@ -117,7 +133,7 @@ export default function Booth() {
         }
         setCount(null);
         if (flash) document.body.classList.add("flash");
-        const src = cam.capture();
+        const src = await cam.capture(faceFilter);
         setTimeout(() => document.body.classList.remove("flash"), 220);
         if (!src) break;
 
@@ -128,7 +144,7 @@ export default function Booth() {
           const captures: string[] = [];
           for (let extraIndex = 0; extraIndex < 2; extraIndex++) {
             await new Promise((resolve) => setTimeout(resolve, 180));
-            const extra = cam.capture();
+            const extra = await cam.capture(faceFilter);
             if (extra) captures.push(extra);
           }
           const extras = [...useBooth.getState().session.extras];
@@ -200,7 +216,9 @@ export default function Booth() {
                 muted
                 playsInline
                 className={session.mirror ? "mirror" : ""}
+                style={{ filter: activeFilterCss === "none" ? undefined : activeFilterCss }}
               />
+              <canvas ref={cam.filterCanvasRef} className={`face-filter-canvas ${session.mirror ? "mirror" : ""}`} aria-hidden="true" />
               {cam.status !== "ready" && (
                 <div className="camera-empty">
                   <Aperture />
@@ -349,22 +367,43 @@ export default function Booth() {
             </div>
             <div className="shot-tray">
               {layout.slots.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (session.shots[i])
-                      setSession({
-                        shots: session.shots.filter((_, j) => j !== i),
-                      });
-                  }}
-                >
-                  {session.shots[i] ? (
-                    <img src={session.shots[i]} />
-                  ) : (
-                    <ImagePlus />
+                <div className="shot-slot" key={i}>
+                  <button
+                    onClick={() => {
+                      if (session.shots[i])
+                        setSession({
+                          shots: session.shots.filter((_, j) => j !== i),
+                          extras: session.extras.filter((_, j) => j !== i),
+                        });
+                    }}
+                    aria-label={session.shots[i] ? `Remove shot ${i + 1}` : `Empty shot ${i + 1}`}
+                  >
+                    {session.shots[i] ? <img src={session.shots[i]} /> : <ImagePlus />}
+                    <span>{i + 1}</span>
+                  </button>
+                  {multi && session.extras[i]?.length > 0 && (
+                    <div className="shot-alternates" aria-label={`Alternates for shot ${i + 1}`}>
+                      {session.extras[i].map((alternate, alternateIndex) => (
+                        <button
+                          key={alternate}
+                          type="button"
+                          className="shot-alternate"
+                          onClick={() => {
+                            const shots = [...session.shots];
+                            const extras = session.extras.map((items) => [...items]);
+                            const previous = shots[i];
+                            shots[i] = alternate;
+                            extras[i][alternateIndex] = previous;
+                            setSession({ shots, extras });
+                          }}
+                          aria-label={`Use alternate ${alternateIndex + 1} for shot ${i + 1}`}
+                        >
+                          <img src={alternate} />
+                        </button>
+                      ))}
+                    </div>
                   )}
-                  <span>{i + 1}</span>
-                </button>
+                </div>
               ))}
             </div>
             <button className="mobile-tool-launch" type="button" onClick={() => setMobileToolsOpen(true)}>
@@ -380,6 +419,30 @@ export default function Booth() {
                 <span><b>Choose a filter</b><small>{filters.find((f) => f.id === session.filterId)?.name ?? "None"}</small></span>
                 <i>›</i>
               </button>
+            </Tool>
+            <Tool title="Face filter">
+              <p className="face-filter-copy">Choose a look before taking a photo. It is fitted to the face at capture time.</p>
+              <div className="booth-face-grid">
+                <button className={!faceFilter ? "selected" : ""} onClick={() => setFaceFilter(undefined)}>
+                  <span>×</span><b>None</b>
+                </button>
+                {faceOptions.map((option) => (
+                  <button key={option.id} className={faceFilter === option.id ? "selected" : ""} onClick={() => setFaceFilter(option.id)}>
+                    <span>{option.symbol}</span><b>{option.name}</b>
+                  </button>
+                ))}
+              </div>
+              <div className="face-size-controls" aria-label="Face filter size">
+                <button type="button" onClick={() => setFaceFilterSize((size) => Math.max(.6, +(size - .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize <= .6}>−</button>
+                <span>Size <b>{Math.round(faceFilterSize * 100)}%</b></span>
+                <button type="button" onClick={() => setFaceFilterSize((size) => Math.min(1.6, +(size + .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize >= 1.6}>+</button>
+              </div>
+              {(faceFilter === "goggles" || faceFilter === "sunnies") && (
+                <label className="shade-color-control">
+                  <span>Shade color</span>
+                  <input type="color" value={shadeColor} onChange={(event) => setShadeColor(event.target.value)} />
+                </label>
+              )}
             </Tool>
             <Tool title="Mode">
               <div className="mode-grid">

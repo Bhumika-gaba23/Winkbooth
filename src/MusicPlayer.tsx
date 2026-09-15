@@ -61,7 +61,18 @@ export default function MusicPlayer() {
   const [currentTime, setCurrentTime] = useState(stored.position);
   const [duration, setDuration] = useState(0);
   const [sourceEnabled, setSourceEnabled] = useState(true);
+  const playerRef = useRef<HTMLElement>(null);
   const track = backgroundTracks[trackIndex];
+
+  useEffect(() => {
+    if (!expanded) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (target && !playerRef.current?.contains(target)) setExpanded(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [expanded]);
 
   const persist = (position: number) => {
     localStorage.setItem(
@@ -194,7 +205,7 @@ export default function MusicPlayer() {
   };
 
   return (
-    <aside className={`music-player ${expanded ? "is-expanded" : ""}`} aria-label="Background music player">
+    <aside ref={playerRef} className={`music-player ${expanded ? "is-expanded" : ""}`} aria-label="Background music player">
       <audio
         key={sourceEnabled ? track.id : "music-paused"}
         ref={audioRef}

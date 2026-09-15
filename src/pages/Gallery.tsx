@@ -20,17 +20,28 @@ import { db, decryptBlob, encryptBlob, makeVault, unlockVault } from "../db";
 import { Button, Shell, SectionTitle } from "../components";
 import { downloadBlob } from "../render";
 import type { Album, GalleryPhoto, VaultConfig } from "../types";
+const wallMoods = [
+  ["cork", "Cork"], ["blush", "Blush"], ["linen", "Linen"], ["night", "Night"],
+  ["cotton-candy", "Cotton candy"], ["lemon", "Lemon fizz"], ["sky", "Blue sky"],
+  ["confetti", "Confetti"], ["lavender", "Lavender"], ["cherry", "Cherry"],
+] as const;
 function PhotoThumb({
   p,
   keyObj,
   onClick,
+  onSelect,
   onDelete,
+  onDownload,
+  onShare,
   selected,
 }: {
   p: GalleryPhoto;
   keyObj: CryptoKey | null;
   onClick: () => void;
+  onSelect: () => void;
   onDelete: () => void;
+  onDownload: () => void;
+  onShare: () => void;
   selected: boolean;
 }) {
   const [url, setUrl] = useState("");
@@ -54,12 +65,37 @@ function PhotoThumb({
     <button
       className="gallery-tile"
       onClick={onClick}
-      aria-label={selected ? "Deselect photo" : "Select photo"}
+      aria-label="Open photo preview"
     >
       {url ? <img src={url} /> : <Lock />}
       {selected && <span>✓</span>}
     </button>
+    <button className="gallery-select" type="button" onClick={(event) => { event.stopPropagation(); onSelect(); }} aria-label={selected ? "Deselect photo" : "Select photo"}>
+      {selected ? "✓" : "＋"}
+    </button>
     <button className="gallery-delete" type="button" onClick={onDelete} aria-label="Delete photo"><Trash2 /></button>
+    <button
+      className="gallery-download"
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onDownload();
+      }}
+      aria-label="Download photo"
+    >
+      <Download />
+    </button>
+    <button
+      className="gallery-share"
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onShare();
+      }}
+      aria-label="Share photo to Stories"
+    >
+      <Share2 />
+    </button>
     </div>
   );
 }
@@ -75,7 +111,9 @@ export default function Gallery() {
     [vaultKey, setVaultKey] = useState<CryptoKey | null>(null),
     [lockOpen, setLockOpen] = useState(false),
     [wall, setWall] = useState(() => localStorage.getItem("winkbooth.wall") ?? "cork"),
-    [usage, setUsage] = useState("");
+    [usage, setUsage] = useState(""),
+    [viewing, setViewing] = useState<GalleryPhoto>(),
+    [viewUrl, setViewUrl] = useState("");
   const load = async () => {
     setPhotos(await db.photos.orderBy("createdAt").reverse().toArray());
     setAlbums(await db.albums.toArray());
@@ -92,6 +130,21 @@ export default function Gallery() {
         ),
       );
   }, []);
+  useEffect(() => {
+    let url = "";
+    setViewUrl("");
+    if (!viewing) return;
+    (async () => {
+      let image = viewing.image;
+      if (viewing.hidden && viewing.cipher && viewing.iv && vaultKey)
+        image = await decryptBlob(viewing.cipher, viewing.iv, vaultKey);
+      if (image) {
+        url = URL.createObjectURL(image);
+        setViewUrl(url);
+      }
+    })();
+    return () => { if (url) URL.revokeObjectURL(url); };
+  }, [viewing, vaultKey]);
   const visible = useMemo(
     () =>
       photos.filter(
@@ -208,6 +261,33 @@ export default function Gallery() {
       if (b) downloadBlob(b, `winkbooth-${p.id}.png`);
     }
   }
+  async function downloadOne(p: GalleryPhoto) {
+    let b = p.image;
+    if (p.hidden && p.cipher && p.iv && vaultKey)
+      b = await decryptBlob(p.cipher, p.iv, vaultKey);
+    if (b) downloadBlob(b, `winkbooth-${p.id}.png`);
+  }
+  async function shareOne(p: GalleryPhoto) {
+    let b = p.image;
+    if (p.hidden && p.cipher && p.iv && vaultKey)
+      b = await decryptBlob(p.cipher, p.iv, vaultKey);
+    if (!b) return;
+    const file = new File([b], `winkbooth-${p.id}.png`, { type: b.type || "image/png" });
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "WinkBooth photo",
+          text: "Share this WinkBooth photo to your Story",
+        });
+      } catch (error) {
+        if ((error as DOMException).name !== "AbortError")
+          alert("Sharing was not completed. Try again or download the photo instead.");
+      }
+      return;
+    }
+    alert("Story sharing is available on supported mobile browsers. Download the photo and add it to Instagram or Snapchat manually.");
+  }
   async function enterVault() {
     setLockOpen(true);
   }
@@ -302,7 +382,7 @@ export default function Gallery() {
               <>
                 <div className="wall-picker" aria-label="Memory wall background">
                   <span>Wall mood</span>
-                  {[["cork", "Cork"], ["blush", "Blush"], ["linen", "Linen"], ["night", "Night"]].map(([id, label]) => (
+                  {wallMoods.map(([id, label]) => (
                     <button key={id} className={wall === id ? "active" : ""} onClick={() => { setWall(id); localStorage.setItem("winkbooth.wall", id); }}>
                       <i className={`wall-swatch ${id}`} />{label}
                     </button>
@@ -311,7 +391,10 @@ export default function Gallery() {
               <div className={`gallery-groups wall-${wall}`}>
                 <div className="memory-wall-masthead">
                   <span>✦ ✦ ✦</span>
-                  <b>WinkBooth</b>
+                  <div className="memory-wall-logo">
+                    <img src="/winkbooth-mark.svg" alt="" aria-hidden="true" />
+                    <b>WinkBooth</b>
+                  </div>
                   <small>memory spotlight · saved on this device</small>
                 </div>
                 {groupPhotos(visible).map((g) => (
@@ -324,8 +407,11 @@ export default function Gallery() {
                           key={p.id}
                           keyObj={vaultKey}
                           selected={selected.has(p.id)}
-                          onClick={() => toggle(p.id)}
+                          onClick={() => setViewing(p)}
+                          onSelect={() => toggle(p.id)}
                           onDelete={() => void removeOne(p.id)}
+                          onDownload={() => void downloadOne(p)}
+                          onShare={() => void shareOne(p)}
                         />
                       ))}
                     </div>
@@ -434,9 +520,57 @@ export default function Gallery() {
             }}
           />
         )}
+        {viewing && (
+          <ExpandedPhotoStrip
+            photos={visible}
+            current={viewing}
+            imageUrl={viewUrl}
+            keyObj={vaultKey}
+            onClose={() => setViewing(undefined)}
+            onSelect={setViewing}
+            onDownload={() => void downloadOne(viewing)}
+            onShare={() => void shareOne(viewing)}
+          />
+        )}
       </section>
     </Shell>
   );
+}
+function ExpandedPhotoStrip({ photos, current, imageUrl, keyObj, onClose, onSelect, onDownload, onShare }: {
+  photos: GalleryPhoto[]; current: GalleryPhoto; imageUrl: string; keyObj: CryptoKey | null;
+  onClose: () => void; onSelect: (photo: GalleryPhoto) => void; onDownload: () => void; onShare: () => void;
+}) {
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
+  const index = Math.max(0, photos.findIndex((p) => p.id === current.id));
+  const adjacent = photos.slice(Math.max(0, index - 3), Math.min(photos.length, index + 4));
+  const before = adjacent.filter((photo) => photos.findIndex((item) => item.id === photo.id) < index);
+  const after = adjacent.filter((photo) => photos.findIndex((item) => item.id === photo.id) > index);
+  useEffect(() => {
+    let active = true;
+    const urls: string[] = [];
+    (async () => {
+      const next: Record<string, string> = {};
+      for (const photo of adjacent) {
+        let blob = photo.thumbnail ?? photo.image;
+        if (photo.hidden && photo.thumbCipher && photo.thumbIv && keyObj)
+          blob = await decryptBlob(photo.thumbCipher, photo.thumbIv, keyObj);
+        if (blob) { const url = URL.createObjectURL(blob); urls.push(url); next[photo.id] = url; }
+      }
+      if (active) setThumbs(next);
+    })();
+    return () => { active = false; urls.forEach(URL.revokeObjectURL); };
+  }, [current.id, photos, keyObj]);
+  return <section className="expanded-photo-strip" aria-label="Expanded photo strip">
+    <div className="expanded-strip-heading"><span>Expanded memory strip</span><button type="button" onClick={onClose} aria-label="Close strip"><X /> Close strip</button></div>
+    <div className="expanded-strip-row">
+      <button className="expanded-strip-arrow" type="button" disabled={index === 0} onClick={() => onSelect(photos[index - 1])} aria-label="Previous photo">‹</button>
+      <div className="expanded-strip-thumbs expanded-strip-thumbs-before">{before.map((photo) => <button key={photo.id} type="button" onClick={() => onSelect(photo)}><img src={thumbs[photo.id] ?? ""} alt="" /></button>)}</div>
+      <div className="expanded-strip-main">{imageUrl ? <img src={imageUrl} alt="Expanded gallery photo" style={{ width: "auto", height: "min(70dvh, 720px)", maxWidth: "100%", objectFit: "contain" }} /> : <Lock />}</div>
+      <div className="expanded-strip-thumbs expanded-strip-thumbs-after">{after.map((photo) => <button key={photo.id} type="button" onClick={() => onSelect(photo)}><img src={thumbs[photo.id] ?? ""} alt="" /></button>)}</div>
+      <button className="expanded-strip-arrow" type="button" disabled={index === photos.length - 1} onClick={() => onSelect(photos[index + 1])} aria-label="Next photo">›</button>
+    </div>
+    <div className="expanded-strip-actions"><Button onClick={onDownload}><Download /> Download</Button><Button onClick={onShare}><Share2 /> Share</Button></div>
+  </section>;
 }
 function ageMatch(time: number, f: string) {
   const d = Date.now() - time,

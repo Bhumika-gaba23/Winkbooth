@@ -41,7 +41,14 @@ export async function compose(session: CaptureSession, scale = 0.5) {
     c.fillRect(0, 0, canvas.width, canvas.height);
   }
   const filter = filters.find((x) => x.id === session.filterId)?.css ?? "none";
-  c.filter = filter === "none" ? "none" : filter;
+  const effectFilter = ({
+    "soft-focus": "blur(1.2px) brightness(1.06)",
+    "warm-glow": "sepia(.22) saturate(1.22) brightness(1.06)",
+    "cool-dream": "saturate(.88) hue-rotate(14deg) brightness(1.08)",
+    "high-contrast": "contrast(1.32) saturate(1.08)",
+    "faded-film": "contrast(.86) saturate(.76) brightness(1.1)",
+  } as Record<string, string>)[session.effectId] ?? "none";
+  c.filter = [filter, effectFilter].filter((value) => value !== "none").join(" ") || "none";
   for (let i = 0; i < layout.slots.length; i++) {
     const slot = layout.slots[i],
       src = session.shots[i];
@@ -63,6 +70,14 @@ export async function compose(session: CaptureSession, scale = 0.5) {
     c.restore();
   }
   c.filter = "none";
+  if (session.effectId === "light-leak") {
+    const leak = c.createLinearGradient(0, 0, canvas.width * 0.8, canvas.height);
+    leak.addColorStop(0, "rgba(255,120,170,.32)");
+    leak.addColorStop(0.28, "rgba(255,220,140,.16)");
+    leak.addColorStop(0.58, "rgba(255,255,255,0)");
+    c.fillStyle = leak;
+    c.fillRect(0, 0, canvas.width, canvas.height);
+  }
   if (frame) {
     c.fillStyle = frame.colors[2];
     c.font = `${Math.round(canvas.width * 0.055)}px Fraunces`;
