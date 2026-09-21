@@ -304,6 +304,9 @@ export default function Gallery() {
             }
           />
           <div>
+            <Link className="button ghost gallery-style-link" to="/edit">
+              Style your strip →
+            </Link>
             {vaultOpen && (
               <Button
                 onClick={() => {

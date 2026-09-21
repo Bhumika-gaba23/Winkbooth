@@ -242,7 +242,7 @@ export default function ExportPage() {
             </div>
           </aside>
         </div>
-        {note && <div className="toast">{note}</div>}
+        {note && <div className="toast" role="status" aria-live="polite">{note}</div>}
       </section>
     </Shell>
   );

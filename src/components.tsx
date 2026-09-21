@@ -1,4 +1,4 @@
-import { Camera, Download, House, Images, Menu, Sparkles, X } from "lucide-react";
+import { Camera, Download, House, Images, Menu, Moon, Palette, Sparkles, X } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 export function Logo() {
@@ -53,7 +53,52 @@ export function AppLoadingScreen() {
   );
 }
 export function Shell({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const themeSwitcherRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem("winkbooth.theme");
+    return ["classic", "candy", "forest", "sunrise", "lemon", "sky", "lavender", "peach", "mint"].includes(stored ?? "") ? stored! : "classic";
+  });
+  const themes = [
+    ["classic", "Classic", "Warm paper"],
+    ["candy", "Candy", "Sweet pink"],
+    ["forest", "Forest", "Mossy calm"],
+    ["sunrise", "Sunrise", "Apricot glow"],
+    ["lemon", "Lemon", "Fresh and bright"],
+    ["sky", "Sky", "Clear blue"],
+    ["lavender", "Lavender", "Soft lilac"],
+    ["peach", "Peach", "Warm blush"],
+    ["mint", "Mint", "Cool garden"],
+  ] as const;
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("winkbooth.theme", theme);
+  }, [theme]);
+  useEffect(() => {
+    if (!themeOpen) return;
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      if (!themeSwitcherRef.current?.contains(event.target as Node)) setThemeOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setThemeOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePress);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [themeOpen]);
+  const activeTheme = themes.find(([id]) => id === theme) ?? themes[0];
+  const workflow = [
+    ["/booth", "1", "Capture"],
+    ["/edit", "2", "Style"],
+    ["/export", "3", "Export"],
+    ["/gallery", "4", "Keep"],
+  ] as const;
+  const step = workflow.findIndex(([to]) => to === pathname);
   return (
     <div className="app-shell">
       <div className="petal petal-a" />
@@ -77,14 +122,37 @@ export function Shell({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </nav>
-        <button
-          className="icon-btn menu"
-          onClick={() => setOpen(!open)}
-          aria-label="Menu"
-        >
-          {open ? <X /> : <Menu />}
-        </button>
+        <div className="header-actions">
+          <div className="theme-switcher" ref={themeSwitcherRef}>
+            <button className="theme-toggle" type="button" onClick={() => setThemeOpen((value) => !value)} aria-expanded={themeOpen} aria-label="Change theme">
+              <Palette /> <span>{activeTheme[1]}</span>
+            </button>
+            {themeOpen && (
+              <div className="theme-menu" role="menu" aria-label="Choose a theme">
+                {themes.map(([id, label, copy]) => (
+                  <button key={id} type="button" className={theme === id ? "active" : ""} onClick={() => { setTheme(id); setThemeOpen(false); }} role="menuitemradio" aria-checked={theme === id}>
+                    <i className={`theme-dot theme-dot-${id}`} />
+                    <span><b>{label}</b><small>{copy}</small></span>
+                    {theme === id && <Moon aria-hidden="true" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button className="icon-btn menu" onClick={() => setOpen(!open)} aria-label="Menu">
+            {open ? <X /> : <Menu />}
+          </button>
+        </div>
       </header>
+      {step >= 0 && (
+        <nav className="workflow-steps" aria-label="Create your photo strip">
+          {workflow.map(([to, number, label], index) => (
+            <NavLink key={to} to={to} className={index === step ? "active" : index < step ? "complete" : ""} aria-current={index === step ? "step" : undefined} aria-label={`${label}${index === step ? ", current step" : ""}`}>
+              <i>{index < step ? "✓" : number}</i><span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
       <main>{children}</main>
     </div>
   );

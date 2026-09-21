@@ -158,9 +158,14 @@ export default function Edit() {
             title="Style your strip"
             copy="Filters, frames, stickers, words."
           />
-          <Button onClick={() => nav("/export")} kind="primary">
-            Export →
-          </Button>
+          <div className="edit-header-actions">
+            <Button onClick={() => nav("/gallery")}>
+              Gallery
+            </Button>
+            <Button onClick={() => nav("/export")} kind="primary">
+              Export →
+            </Button>
+          </div>
         </div>
         <div className="edit-grid">
           <div>
@@ -214,7 +219,7 @@ export default function Edit() {
               <span><i>2</i> Make it yours</span>
               <span><i>3</i> Take it home</span>
             </div>
-            <button className="mobile-tool-launch edit-tool-launch" type="button" onClick={() => setMobileToolsOpen(true)}>
+            <button className={`mobile-tool-launch edit-tool-launch ${mobileToolsOpen ? "" : "tools-closed"}`} type="button" onClick={() => setMobileToolsOpen(true)}>
               <SlidersHorizontal />
               <span><b>Open editing tools</b><small>{tab} · {session.overlays.length} layers</small></span>
               <i>+</i>

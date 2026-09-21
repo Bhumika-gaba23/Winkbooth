@@ -12,6 +12,8 @@
   --line: rgba(51, 41, 31, 0.2);
   --shadow: 0 18px 60px rgba(82, 61, 37, 0.14);
 }
+[data-theme="candy"] { --ink: #572c48; --paper: #fff0f6; --cream: #fff9fc; --yellow: #ffd56f; --pink: #f19bc2; --green: #98d8c2; --line: rgba(87,44,72,.2); }
+[data-theme="forest"] { --ink: #263c35; --paper: #e8efe2; --cream: #f8fbf0; --yellow: #e7c45e; --pink: #d8a3a0; --green: #79a982; --line: rgba(38,60,53,.22); }
 * {
   box-sizing: border-box;
 }
@@ -59,6 +61,25 @@ a {
   overflow: hidden;
   position: relative;
 }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.theme-switcher { position: relative; }
+.theme-toggle { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; color: var(--ink); background: color-mix(in srgb, var(--cream) 78%, transparent); cursor: pointer; font-size: 12px; font-weight: 700; }
+.theme-toggle svg { width: 16px; }
+.theme-menu { position: absolute; z-index: 80; top: calc(100% + 9px); right: 0; width: 188px; padding: 7px; border: 1px solid var(--line); border-radius: 16px; background: var(--cream); box-shadow: var(--shadow); }
+.theme-menu button { width: 100%; display: flex; align-items: center; gap: 9px; border: 0; border-radius: 11px; padding: 9px; color: var(--ink); background: transparent; text-align: left; cursor: pointer; }
+.theme-menu button:hover, .theme-menu button.active { background: color-mix(in srgb, var(--pink) 28%, transparent); }
+.theme-menu button > span { display: grid; gap: 2px; flex: 1; }
+.theme-menu small { opacity: .62; font-size: 10px; }
+.theme-menu svg { width: 14px; }
+.theme-dot { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--cream); box-shadow: 0 0 0 1px var(--line); }
+.theme-dot-candy { background: linear-gradient(135deg, #fff0f6, #f19bc2); }
+.theme-dot-forest { background: linear-gradient(135deg, #e8efe2, #79a982); }
+.theme-dot-sunrise { background: linear-gradient(135deg, #fff1df, #ed8d76); }
+.theme-dot-lemon { background: linear-gradient(135deg, #fffde0, #f3d34a); }
+.theme-dot-sky { background: linear-gradient(135deg, #e9f7ff, #72b8d5); }
+.theme-dot-lavender { background: linear-gradient(135deg, #f5efff, #b99bd8); }
+.theme-dot-peach { background: linear-gradient(135deg, #fff0e9, #ee9c8b); }
+.theme-dot-mint { background: linear-gradient(135deg, #e9f8ef, #79c4ad); }
 .petal {
   position: fixed;
   width: 420px;
@@ -1450,6 +1471,90 @@ footer div {
   .prose, .empty { padding: 36px 18px 110px; }
 }
 
+/* High-contrast surfaces for the selected mood. Keep this block last so it
+   overrides the legacy pink scrapbook defaults above. */
+html[data-theme="classic"] {
+  --surface: #fff8fb;
+  --surface-2: #f8dce7;
+  --muted: #704b5c;
+  --on-accent: #351524;
+}
+html[data-theme="candy"] {
+  --surface: #fff9fc;
+  --surface-2: #ffe0ee;
+  --muted: #713c5b;
+  --on-accent: #51243f;
+}
+html[data-theme="forest"] {
+  --surface: #f5faed;
+  --surface-2: #d7e7d3;
+  --muted: #456257;
+  --on-accent: #183128;
+}
+html[data-theme="sunrise"] { --ink: #5a3027; --paper: #fff1df; --cream: #fffaf2; --yellow: #f5b84b; --pink: #ed8d76; --green: #a8c49a; --line: rgba(90,48,39,.22); --surface: #fffaf2; --surface-2: #ffe1c5; --muted: #815649; --on-accent: #4d281e; }
+html[data-theme="lemon"] { --ink: #41421f; --paper: #fffde0; --cream: #fffff2; --yellow: #f3d34a; --pink: #e9a84f; --green: #9fbd63; --line: rgba(65,66,31,.22); --surface: #fffff2; --surface-2: #f6f0b7; --muted: #6c6d3e; --on-accent: #343410; }
+html[data-theme="sky"] { --ink: #21435a; --paper: #e9f7ff; --cream: #f8fdff; --yellow: #f4c95d; --pink: #72b8d5; --green: #8fc8b2; --line: rgba(33,67,90,.22); --surface: #f8fdff; --surface-2: #cdebf6; --muted: #4e7182; --on-accent: #18384c; }
+html[data-theme="lavender"] { --ink: #443450; --paper: #f5efff; --cream: #fdfaff; --yellow: #e2c56d; --pink: #b99bd8; --green: #9fc7b0; --line: rgba(68,52,80,.22); --surface: #fdfaff; --surface-2: #e8daf7; --muted: #6f5b7e; --on-accent: #392941; }
+html[data-theme="peach"] { --ink: #5a342f; --paper: #fff0e9; --cream: #fffaf7; --yellow: #efbd63; --pink: #ee9c8b; --green: #acd0b0; --line: rgba(90,52,47,.22); --surface: #fffaf7; --surface-2: #fbd8ca; --muted: #815b54; --on-accent: #4c2924; }
+html[data-theme="mint"] { --ink: #23483f; --paper: #e9f8ef; --cream: #f8fff9; --yellow: #e8cb62; --pink: #79c4ad; --green: #8fbe91; --line: rgba(35,72,63,.22); --surface: #f8fff9; --surface-2: #cfeedd; --muted: #4e756a; --on-accent: #183a32; }
+html[data-theme] .booth-page,
+html[data-theme] .edit-page,
+html[data-theme] .gallery-page,
+html[data-theme] .export-page { color: var(--ink); }
+html[data-theme] .booth-page .section-title p,
+html[data-theme] .camera-empty p,
+html[data-theme] .face-filter-copy,
+html[data-theme] .filter-launch small,
+html[data-theme] .tool small,
+html[data-theme] .mode-grid small,
+html[data-theme] .layout-grid small { color: var(--muted) !important; }
+html[data-theme] .camera-stage { background: linear-gradient(145deg, var(--surface-2), var(--surface)) !important; border-color: var(--surface-2); box-shadow: 10px 11px 0 color-mix(in srgb, var(--ink) 32%, transparent), 0 18px 34px color-mix(in srgb, var(--ink) 22%, transparent); }
+html[data-theme] .camera-empty { background: color-mix(in srgb, var(--surface) 92%, transparent); }
+html[data-theme] .camera-empty h2 { color: var(--ink); }
+html[data-theme] .camera-empty p { color: var(--muted) !important; }
+html[data-theme] .tool,
+html[data-theme] .style-panel,
+html[data-theme] .layer-sheet,
+html[data-theme] .mobile-sheet,
+html[data-theme] .filter-launch,
+html[data-theme] .mode-grid button,
+html[data-theme] .layout-grid button,
+html[data-theme] .capture-toggles button,
+html[data-theme] .shot-tray button { background: var(--surface) !important; color: var(--ink); }
+html[data-theme] .tool { border-color: var(--line); box-shadow: 0 8px 25px color-mix(in srgb, var(--ink) 12%, transparent); }
+html[data-theme] .tool > h3 { background: var(--pink); color: var(--on-accent); }
+html[data-theme] .mode-grid button.selected,
+html[data-theme] .layout-grid button.selected,
+html[data-theme] .capture-toggles button.on {
+  background: color-mix(in srgb, var(--pink) 34%, var(--surface)) !important;
+  color: var(--ink);
+  border-color: var(--pink);
+  box-shadow: inset 0 0 0 1px var(--pink), 2px 3px 0 color-mix(in srgb, var(--ink) 16%, transparent);
+}
+html[data-theme] .mode-grid button.selected .mode-preview {
+  background: var(--surface) !important;
+  border-color: var(--pink);
+}
+html[data-theme] .mode-preview { background: var(--surface-2); }
+html[data-theme] .mode-preview i { background: var(--pink); }
+html[data-theme] .layout-glyph { background: var(--surface-2); }
+html[data-theme] .layout-glyph i { background: var(--muted); }
+html[data-theme] .booth-face-grid button { background: var(--surface) !important; color: var(--ink); border-color: var(--line); }
+html[data-theme] .booth-face-grid button.selected { background: var(--surface-2) !important; border-color: var(--pink); box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 26%, transparent); }
+html[data-theme] .booth-face-grid button b { color: var(--ink); }
+html[data-theme] .capture-toggles b { background: var(--surface-2); color: var(--ink); }
+html[data-theme] .shutter { border-color: var(--ink); background: var(--surface); }
+html[data-theme] .shutter span { background: var(--pink); }
+html[data-theme] .shutter small { background: var(--ink); color: var(--paper); }
+html[data-theme] .camera-tools button { background: color-mix(in srgb, var(--ink) 84%, transparent); color: var(--paper); }
+html[data-theme] .camera-tools button.on { background: var(--yellow); color: var(--on-accent); }
+html[data-theme] .button.primary { background: var(--yellow); color: var(--on-accent); }
+html[data-theme] .button:not(.primary) { color: var(--ink); background: var(--surface); }
+html[data-theme] .filter-picker { background: var(--surface); color: var(--ink); }
+html[data-theme] .filter-picker h2 { color: var(--pink); }
+html[data-theme] .filter-picker header button { background: var(--surface-2); color: var(--ink); }
+html[data-theme] .filter-picker-grid button:hover b { color: var(--pink); }
+
 @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
   :root { --mobile-nav-height: 58px; }
   .app-shell > header { height: 46px; }
@@ -2383,12 +2488,19 @@ body { background: #fff0f5; }
   .hero-actions { width: 100%; max-width: 100%; display: grid; grid-template-columns: 1fr; align-items: stretch; }
   .hero-actions .button { box-sizing: border-box; max-width: 100%; }
   .hero-actions .button { width: 100%; margin: 0; }
-  .trust { width: 100%; max-width: 100%; }
+  .trust {
+    width: 100%;
+    max-width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 16px;
+  }
   .hero-stack.contact-sheet {
     width: min(280px, calc(100vw - 52px));
     max-width: calc(100vw - 52px);
     height: 310px;
-    margin: -12px auto -20px;
+    margin: 24px auto 12px;
     transform: rotate(1deg);
   }
   .contact-sheet .strip-card.front { width: 100%; min-width: 0; }
@@ -2622,6 +2734,26 @@ body { background: #fff0f5; }
 }
 .wink-intensity-thumb svg { width: 100%; height: 100%; overflow: visible; fill: #fff8fb; stroke: var(--ink); stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; }
 .wink-intensity-thumb .wink-thumb-screen { fill: var(--ink); }
+
+/* User-selected moods must win over the scrapbook default palette above. */
+html[data-theme="classic"] { --ink: #512437; --paper: #fff0f5; --cream: #fff8fb; --yellow: #f3abc3; --pink: #d95783; --green: #a97899; --line: rgba(81,36,55,.24); }
+html[data-theme="candy"] { --ink: #572c48; --paper: #fff0f6; --cream: #fff9fc; --yellow: #ffd56f; --pink: #f19bc2; --green: #98d8c2; --line: rgba(87,44,72,.2); }
+html[data-theme="forest"] { --ink: #263c35; --paper: #e8efe2; --cream: #f8fbf0; --yellow: #e7c45e; --pink: #d8a3a0; --green: #79a982; --line: rgba(38,60,53,.22); }
+html[data-theme] body { color: var(--ink); background: var(--paper); }
+html[data-theme] .app-shell { background: radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--pink) 22%, transparent), transparent 30%), linear-gradient(125deg, var(--paper), var(--cream) 54%, color-mix(in srgb, var(--pink) 34%, var(--paper))); }
+html[data-theme] .tool,
+html[data-theme] .style-panel,
+html[data-theme] .layer-sheet,
+html[data-theme] .motion-card,
+html[data-theme] .print-card,
+html[data-theme] .caption,
+html[data-theme] .vault-dialog > div,
+html[data-theme] .album-grid article,
+html[data-theme] .theme-menu { background: var(--cream); color: var(--ink); }
+html[data-theme] .layout-glyph,
+html[data-theme] .shot-tray button,
+html[data-theme] .empty-gallery { background: color-mix(in srgb, var(--pink) 24%, var(--cream)); }
+html[data-theme] .theme-toggle { color: var(--ink); }
 .wink-intensity-thumb .wink-thumb-eye { fill: #fff8fb; stroke: none; transform-box: fill-box; transform-origin: center; animation: intensity-wink-eye 2.8s ease-in-out infinite; }
 .wink-intensity-thumb .wink-thumb-wink,
 .wink-intensity-thumb .wink-thumb-smile { fill: none; stroke: #fff8fb; stroke-width: 2.5; }
@@ -2778,4 +2910,214 @@ body { background: #fff0f5; }
     object-fit: contain;
   }
   .canvas-stamp, .canvas-doodle, .edit-ritual { display: none; }
+}
+
+/* Final readability pass: every interactive surface and text treatment follows
+   the selected theme instead of the original fixed pink palette. */
+html[data-theme] .edit-page { background: radial-gradient(circle at 16% 34%, color-mix(in srgb, var(--ink) 10%, transparent) 0 2px, transparent 3px) 0 0 / 20px 20px; }
+html[data-theme] .section-title p,
+html[data-theme] .edit-ritual,
+html[data-theme] .face-filter-copy,
+html[data-theme] .filter-launch small,
+html[data-theme] .cover-panel-copy small,
+html[data-theme] .mobile-tool-launch span small,
+html[data-theme] .style-panel small,
+html[data-theme] .tool small { color: var(--muted) !important; }
+html[data-theme] .style-panel,
+html[data-theme] .style-tabs,
+html[data-theme] .style-tabs button,
+html[data-theme] .effect-grid button,
+html[data-theme] .sticker-panel,
+html[data-theme] .brand-panel,
+html[data-theme] .cover-panel,
+html[data-theme] .layer-sheet { background: var(--surface) !important; color: var(--ink); }
+html[data-theme] .style-tabs { border: 1px solid var(--line); }
+html[data-theme] .style-tabs button { color: var(--muted) !important; font-weight: 700; }
+html[data-theme] .style-tabs button.active { color: var(--on-accent) !important; background: var(--yellow) !important; box-shadow: 0 3px 0 var(--pink); }
+html[data-theme] .edit-ritual { background: var(--surface-2); border-color: var(--line); }
+html[data-theme] .canvas-stamp { color: var(--ink); background: var(--surface); border-color: var(--line); }
+html[data-theme] .filter-launch,
+html[data-theme] .effect-grid button,
+html[data-theme] .sticker-panel button,
+html[data-theme] .brand-panel input { color: var(--ink) !important; border-color: var(--line); }
+html[data-theme] .filter-launch { background: var(--surface-2) !important; }
+html[data-theme] .filter-launch b,
+html[data-theme] .effect-grid b,
+html[data-theme] .sticker-panel b,
+html[data-theme] .brand-panel label { color: var(--ink) !important; }
+html[data-theme] .undo-row .button,
+html[data-theme] .edit-header-actions .button:not(.primary) { background: var(--surface) !important; color: var(--ink) !important; }
+html[data-theme] .gallery-page,
+html[data-theme] .export-page,
+html[data-theme] .booth-page { color: var(--ink); }
+html[data-theme] header .logo,
+html[data-theme] .wink-wordmark { color: var(--ink) !important; }
+html[data-theme] header { border-color: var(--line); }
+html[data-theme] .mobile-bottom-nav { background: var(--surface) !important; }
+html[data-theme] .mobile-bottom-nav a { color: var(--muted); }
+html[data-theme] .mobile-bottom-nav a.active { color: var(--paper); }
+html[data-theme] .gallery-tabs button,
+html[data-theme] .filters button,
+html[data-theme] .wall-picker button { color: var(--ink); }
+html[data-theme] .gallery-tabs button.active { color: var(--paper); }
+html[data-theme] input,
+html[data-theme] textarea,
+html[data-theme] select { color: var(--ink); background: var(--surface); }
+
+/* A quiet route map keeps the capture-to-keepsake flow understandable. */
+.workflow-steps {
+  width: min(1200px, calc(100% - 56px));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px auto 0;
+  padding: 0 0 8px;
+}
+.workflow-steps a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 9px 4px 5px;
+  border-radius: 999px;
+  color: var(--muted, var(--ink));
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+}
+.workflow-steps i {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface, var(--cream));
+  color: var(--ink);
+  font: inherit;
+  font-style: normal;
+}
+.workflow-steps a.active { color: var(--ink); background: color-mix(in srgb, var(--pink) 23%, var(--surface, var(--cream))); }
+.workflow-steps a.active i { border-color: var(--pink); background: var(--pink); color: var(--on-accent, var(--ink)); }
+.workflow-steps a.complete i { background: var(--green); border-color: var(--green); color: var(--on-accent, var(--ink)); }
+
+/* Shared interaction and readability baseline. */
+:where(.button, .theme-toggle, .theme-menu button, .gallery-tabs button, .style-tabs button, .filters button, .chips button, .mobile-bottom-nav a) { touch-action: manipulation; }
+:where(button, a, input, select, textarea, [tabindex]):focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+.theme-menu { max-height: min(420px, calc(100dvh - 110px)); overflow-y: auto; overscroll-behavior: contain; }
+
+@media (max-width: 640px) {
+  .workflow-steps {
+    width: 100%;
+    gap: 4px;
+    margin: 0;
+    padding: 4px 12px 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .workflow-steps::-webkit-scrollbar { display: none; }
+  .workflow-steps a { flex: 0 0 auto; min-height: 38px; padding-right: 8px; font-size: 10px; }
+  .workflow-steps i { width: 24px; height: 24px; }
+  .theme-menu { right: 0; width: min(210px, calc(100vw - 24px)); }
+  :where(.button, .theme-toggle, .gallery-tabs button, .style-tabs button, .filters button, .chips button) { min-height: 42px; }
+  .edit-page { background-size: 28px 28px; }
+  .motion-card, .print-card, .caption { margin: 10px 0; box-shadow: none; }
+  .motion-card > span { letter-spacing: .14em; }
+}
+
+/* Small phones keep the journey visible without turning it into a second nav. */
+@media (max-width: 380px) {
+  .workflow-steps { justify-content: space-between; padding-inline: 14px; }
+  .workflow-steps a { padding: 4px; }
+  .workflow-steps a:not(.active) span { display: none; }
+  .workflow-steps a.active { padding-right: 9px; }
+}
+
+/* Tablet rhythm: preserve breathing room without the desktop's oversized gaps. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .page, .catalog-section { padding-inline: clamp(24px, 5vw, 44px); }
+  .booth-grid, .edit-grid, .export-grid { gap: clamp(24px, 4vw, 38px); }
+  .workflow-steps { width: min(100% - 48px, 920px); }
+}
+
+/* The edit header gets its own row on phones: never let navigation actions
+   compete with the page title for horizontal space. */
+.edit-header-actions { display: flex; align-items: center; gap: 10px; }
+@media (max-width: 640px) {
+  .edit-page .title-row {
+    display: block;
+    margin-bottom: 12px;
+  }
+  .edit-page .title-row .section-title h1 {
+    font-size: clamp(29px, 9vw, 36px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .edit-header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin-top: 12px;
+    gap: 9px;
+  }
+  .edit-header-actions .button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .edit-page .edit-grid { margin-top: 8px; }
+}
+@media (max-width: 350px) {
+  .edit-header-actions { gap: 7px; }
+  .edit-header-actions .button { padding-inline: 6px; font-size: 11px; }
+}
+
+@media (max-width: 640px) and (min-height: 501px) {
+  .edit-tool-launch.tools-closed {
+    position: fixed;
+    z-index: 955;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(82px, calc(env(safe-area-inset-right) + 70px));
+    bottom: calc(var(--mobile-nav-height) + 13px + env(safe-area-inset-bottom));
+    width: auto;
+    margin: 0;
+  }
+}
+
+/* Export is a vertical flow on phones. The preview is clipped to its own
+   viewport-safe area so action cards never sit on top of the photo. */
+@media (max-width: 640px) {
+  .export-page .export-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .export-page .export-preview {
+    width: 100%;
+    height: min(48dvh, 430px);
+    min-height: 260px;
+    max-height: none;
+    margin: 0;
+    overflow: hidden;
+    place-items: center;
+  }
+  .export-page .export-preview img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .export-page .export-grid > aside {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    background: var(--paper);
+  }
+  .export-page .action-grid .button { min-height: 62px; }
 }
