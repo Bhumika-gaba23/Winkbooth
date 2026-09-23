@@ -42,10 +42,24 @@ body.flash:before {
   z-index: 999;
   animation: flash 0.22s forwards;
 }
+body.capture-flash:before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,.98), rgba(255,255,255,.7) 36%, rgba(255,255,255,0) 76%);
+  z-index: 999;
+  pointer-events: none;
+  animation: capture-flash .32s ease-out forwards;
+}
 @keyframes flash {
   to {
     opacity: 0;
   }
+}
+@keyframes capture-flash {
+  0% { opacity: 1; }
+  28% { opacity: .82; }
+  100% { opacity: 0; }
 }
 button,
 a,
@@ -434,6 +448,27 @@ footer div {
 .feature-list p {
   margin: 5px 0;
   color: #6f6252;
+}
+.features-page .section-title,
+.features-page .feature-list article,
+.features-page .faq {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .82s ease, transform .82s cubic-bezier(.16,1,.3,1);
+}
+.features-page .section-title.is-visible,
+.features-page .feature-list article.is-visible,
+.features-page .faq.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.features-page .feature-list article { transition-delay: var(--feature-delay, 0ms); }
+.features-page .feature-list article svg { transition: transform .7s cubic-bezier(.16,1,.3,1), color .7s ease; }
+.features-page .feature-list article.is-visible svg { transform: rotate(-8deg) scale(1.08); color: var(--pink); }
+@media (prefers-reduced-motion: reduce) {
+  .features-page .section-title,
+  .features-page .feature-list article,
+  .features-page .faq { opacity: 1; transform: none; transition: none; }
 }
 .faq {
   max-width: 800px;

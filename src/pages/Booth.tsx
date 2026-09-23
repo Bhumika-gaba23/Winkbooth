@@ -136,6 +136,10 @@ export default function Booth() {
         const src = await cam.capture(faceFilter);
         setTimeout(() => document.body.classList.remove("flash"), 220);
         if (!src) break;
+        document.body.classList.remove("capture-flash");
+        void document.body.offsetWidth;
+        document.body.classList.add("capture-flash");
+        setTimeout(() => document.body.classList.remove("capture-flash"), 320);
 
         const state = useBooth.getState();
         const slot = state.session.shots.length;

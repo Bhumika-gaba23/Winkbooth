@@ -277,7 +277,12 @@ export default function Gallery() {
     let b = p.image;
     if (p.hidden && p.cipher && p.iv && vaultKey)
       b = await decryptBlob(p.cipher, p.iv, vaultKey);
-    if (b) downloadBlob(b, `winkbooth-${p.id}.png`);
+    if (!b) return;
+    const suggested = `winkbooth-${p.id}`;
+    const entered = prompt("Name this downloaded photo", suggested);
+    if (entered === null) return;
+    const safeName = entered.trim().replace(/[\\/:*?"<>|]/g, "-").replace(/\.png$/i, "").trim();
+    downloadBlob(b, `${safeName || suggested}.png`);
   }
   async function shareOne(p: GalleryPhoto) {
     let b = p.image;

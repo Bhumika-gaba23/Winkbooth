@@ -13,6 +13,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Shell, SectionTitle } from "../components";
 const items = [
   [
@@ -99,9 +100,17 @@ const faqs = [
   ],
 ];
 export default function Features() {
+  useEffect(() => {
+    const reveal = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
+      { threshold: 0.16, rootMargin: "0px 0px -8%" },
+    );
+    document.querySelectorAll(".features-page .section-title, .features-page .feature-list article, .features-page .faq").forEach((element) => reveal.observe(element));
+    return () => reveal.disconnect();
+  }, []);
   return (
     <Shell>
-      <section className="page">
+      <section className="page features-page">
         <SectionTitle
           eyebrow="VOLUME 02 — THE DETAILS"
           title="A whole photobooth, tucked inside a tab."
@@ -111,7 +120,7 @@ export default function Features() {
           {items.map(([Icon, title, copy], i) => {
             const I = Icon as typeof Camera;
             return (
-              <article key={String(title)}>
+              <article key={String(title)} style={{ "--feature-delay": `${Math.min(i, 7) * 55}ms` } as React.CSSProperties}>
                 <span>{String(i + 1).padStart(2, "0")}</span>
                 <I />
                 <div>
