@@ -736,6 +736,9 @@ footer div {
 }
 .mini-frames::-webkit-scrollbar { display: none; }
 .frame-swap-rail { scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+.brand-panel .frame-swap-rail { min-height: 76px; margin: 8px 0 4px; padding: 4px; }
+.brand-panel .frame-swap-rail > button { border-radius: 10px; box-shadow: 0 3px 0 rgba(81,36,55,.16); cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+.brand-panel .frame-swap-rail > button:hover { transform: translateY(-3px); box-shadow: 0 6px 0 rgba(81,36,55,.16); }
 .frame-swap-rail > button { scroll-snap-align: start; }
 .brand-panel .frame-swap-rail + .range.wink-intensity { grid-template-columns: 1fr; min-height: 46px; margin: 10px 0 0; }
 .brand-panel .frame-swap-rail + .range.wink-intensity .wink-intensity-label { justify-content: space-between; font-size: 10px; }

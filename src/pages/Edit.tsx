@@ -34,6 +34,8 @@ export default function Edit() {
     [mobileToolsOpen, setMobileToolsOpen] = useState(true),
     [frameRailProgress, setFrameRailProgress] = useState(0);
   const layout = layouts.find((item) => item.id === session.layoutId) ?? layouts[0];
+  const swapFrames = frames.filter((frame) => frame.layoutId === session.layoutId);
+  const availableSwapFrames = swapFrames.length ? swapFrames : frames;
   const previewWidth = Math.min(540, 700 * (layout.width / layout.height));
   const previewRef = useRef<HTMLDivElement>(null);
   const filterRailRef = useRef<HTMLDivElement>(null);
@@ -438,9 +440,7 @@ export default function Edit() {
                 </label>
                 <h3>Swap frame</h3>
                 <div className="mini-frames frame-swap-rail" ref={frameRailRef} onScroll={syncFrameRail}>
-                  {frames
-                    .filter((f) => f.layoutId === session.layoutId)
-                    .map((f) => (
+                  {availableSwapFrames.map((f) => (
                       <button
                         key={f.id}
                         style={{ background: f.colors[0] }}
