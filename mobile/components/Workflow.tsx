@@ -1,0 +1,7 @@
+import { router, usePathname } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { themes } from "@/constants/theme";
+import { useBoothStore } from "@/store/booth";
+const items = [["/booth", "1", "Capture"], ["/style", "2", "Style"], ["/export", "3", "Export"], ["/(tabs)/gallery", "4", "Keep"]] as const;
+export function Workflow() { const path = usePathname(); const p = themes[useBoothStore((s) => s.theme)]; const active = items.findIndex(([route]) => path.includes(route.replace("/(tabs)", ""))); return <View style={styles.row}>{items.map(([route, number, label], i) => <Pressable key={route} onPress={() => router.push(route as never)} style={[styles.item, i === active && { backgroundColor: p.surface2 }]}><Text style={[styles.dot, { color: p.ink, borderColor: p.pink, backgroundColor: i < active ? p.green : i === active ? p.pink : p.surface }]}>{i < active ? "✓" : number}</Text><Text style={[styles.label, { color: p.ink }]}>{label}</Text></Pressable>)}</View>; }
+const styles = StyleSheet.create({ row: { flexDirection: "row", gap: 4, paddingTop: 6 }, item: { minHeight: 38, flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 6, borderRadius: 20 }, dot: { width: 23, height: 23, borderWidth: 1, borderRadius: 12, textAlign: "center", lineHeight: 21, fontSize: 11, fontWeight: "800" }, label: { fontSize: 10, fontWeight: "800" } });

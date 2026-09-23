@@ -31,11 +31,13 @@ export default function Edit() {
     [selected, setSelected] = useState<string>(),
     [history, setHistory] = useState<CaptureSession[]>([]),
     [future, setFuture] = useState<CaptureSession[]>([]),
-    [mobileToolsOpen, setMobileToolsOpen] = useState(true);
+    [mobileToolsOpen, setMobileToolsOpen] = useState(true),
+    [frameRailProgress, setFrameRailProgress] = useState(0);
   const layout = layouts.find((item) => item.id === session.layoutId) ?? layouts[0];
   const previewWidth = Math.min(540, 700 * (layout.width / layout.height));
   const previewRef = useRef<HTMLDivElement>(null);
   const filterRailRef = useRef<HTMLDivElement>(null);
+  const frameRailRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     id: string;
     start: CaptureSession;
@@ -50,6 +52,19 @@ export default function Edit() {
     setHistory((h) => [...h.slice(-49), session]);
     setFuture([]);
     setSession(p);
+  };
+  const syncFrameRail = () => {
+    const rail = frameRailRef.current;
+    if (!rail) return;
+    const maxScroll = rail.scrollWidth - rail.clientWidth;
+    setFrameRailProgress(maxScroll > 0 ? (rail.scrollLeft / maxScroll) * 100 : 0);
+  };
+  const moveFrameRail = (progress: number) => {
+    const rail = frameRailRef.current;
+    if (!rail) return;
+    const maxScroll = rail.scrollWidth - rail.clientWidth;
+    rail.scrollTo({ left: (progress / 100) * maxScroll, behavior: "smooth" });
+    setFrameRailProgress(progress);
   };
   const add = (kind: "sticker" | "text", value: string) =>
     change({
@@ -154,10 +169,17 @@ export default function Edit() {
     <Shell>
       <section className="page edit-page">
         <div className="title-row">
-          <SectionTitle
-            title="Style your strip"
-            copy="Filters, frames, stickers, words."
-          />
+          <div className="edit-title-group">
+            <SectionTitle
+              title="Style your strip"
+              copy="Filters, frames, stickers, words."
+            />
+            <div className="edit-ritual" aria-label="Editing tips">
+              <span><i>1</i> Pick a mood</span>
+              <span><i>2</i> Make it yours</span>
+              <span><i>3</i> Take it home</span>
+            </div>
+          </div>
           <div className="edit-header-actions">
             <Button onClick={() => nav("/gallery")}>
               Gallery
@@ -214,11 +236,6 @@ export default function Edit() {
                 <Redo2 /> Redo
               </Button>
             </div>
-            <div className="edit-ritual" aria-label="Editing tips">
-              <span><i>1</i> Pick a mood</span>
-              <span><i>2</i> Make it yours</span>
-              <span><i>3</i> Take it home</span>
-            </div>
             <button className={`mobile-tool-launch edit-tool-launch ${mobileToolsOpen ? "" : "tools-closed"}`} type="button" onClick={() => setMobileToolsOpen(true)}>
               <SlidersHorizontal />
               <span><b>Open editing tools</b><small>{tab} · {session.overlays.length} layers</small></span>
@@ -227,7 +244,7 @@ export default function Edit() {
           </div>
           <BottomSheet className="style-panel" title="Editing tools" open={mobileToolsOpen} onClose={() => setMobileToolsOpen(false)}>
             <div className="style-tabs">
-              {["Filter", "Effect", "Stickers", "Face", "Brand"].map((x) => (
+              {["Filter", "Effect", "Stickers", "Brand"].map((x) => (
                 <button
                   className={tab === x ? "active" : ""}
                   onClick={() => setTab(x)}
@@ -420,7 +437,7 @@ export default function Edit() {
                   Gradient background
                 </label>
                 <h3>Swap frame</h3>
-                <div className="mini-frames">
+                <div className="mini-frames frame-swap-rail" ref={frameRailRef} onScroll={syncFrameRail}>
                   {frames
                     .filter((f) => f.layoutId === session.layoutId)
                     .map((f) => (
@@ -428,13 +445,23 @@ export default function Edit() {
                         key={f.id}
                         style={{ background: f.colors[0] }}
                         onClick={() =>
-                          change({ frameId: f.id, mode: "framed" })
+                          change({
+                            frameId: f.id,
+                            mode: "framed",
+                            theme: {
+                              ...session.theme,
+                              frame: f.colors[0],
+                              accent: f.colors[1],
+                              label: f.colors[2],
+                            },
+                          })
                         }
                       >
                         {f.motif}
                       </button>
-                    ))}
+                  ))}
                 </div>
+                <WinkSlider label="Browse frames" value={frameRailProgress} min={0} max={100} step={1} onChange={moveFrameRail} />
               </div>
             )}
             {layer && tab !== "Effect" && (

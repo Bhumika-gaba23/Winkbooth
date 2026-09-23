@@ -29,8 +29,10 @@ export async function compose(session: CaptureSession, scale = 0.5) {
   canvas.height = Math.round(layout.height * scale);
   const c = canvas.getContext("2d")!;
   const frame = frames.find((x) => x.id === session.frameId);
-  const bg = frame?.colors[0] ?? session.theme.frame;
-  const accent = frame?.colors[1] ?? session.theme.accent;
+  // A selected template provides its motif and label, while the editor's
+  // palette remains the source of truth for the visible frame colors.
+  const bg = session.theme.frame;
+  const accent = session.theme.accent;
   c.fillStyle = bg;
   c.fillRect(0, 0, canvas.width, canvas.height);
   if (session.theme.gradient) {

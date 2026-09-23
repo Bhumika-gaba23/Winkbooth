@@ -14,7 +14,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { db, decryptBlob, encryptBlob, makeVault, unlockVault } from "../db";
 import { Button, Shell, SectionTitle } from "../components";
@@ -112,6 +112,9 @@ export default function Gallery() {
     [lockOpen, setLockOpen] = useState(false),
     [wall, setWall] = useState(() => localStorage.getItem("winkbooth.wall") ?? "cork"),
     [usage, setUsage] = useState(""),
+    [usagePercent, setUsagePercent] = useState(0),
+    [storageOpen, setStorageOpen] = useState(false),
+    storageRef = useRef<HTMLDivElement>(null),
     [viewing, setViewing] = useState<GalleryPhoto>(),
     [viewUrl, setViewUrl] = useState("");
   const load = async () => {
@@ -124,12 +127,21 @@ export default function Gallery() {
     navigator.storage?.persist?.();
     navigator.storage
       ?.estimate?.()
-      .then((x) =>
-        setUsage(
-          `${Math.round((x.usage ?? 0) / 1048576)} MB of ${Math.round((x.quota ?? 0) / 1048576)} MB used`,
-        ),
-      );
+      .then((x) => {
+        const used = x.usage ?? 0;
+        const quota = x.quota ?? 0;
+        setUsage(`${Math.round(used / 1048576)} MB of ${Math.round(quota / 1048576)} MB used`);
+        setUsagePercent(quota ? Math.min(100, Math.max(0, (used / quota) * 100)) : 0);
+      });
   }, []);
+  useEffect(() => {
+    if (!storageOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!storageRef.current?.contains(event.target as Node)) setStorageOpen(false);
+    };
+    document.addEventListener("click", closeOnOutsideClick);
+    return () => document.removeEventListener("click", closeOnOutsideClick);
+  }, [storageOpen]);
   useEffect(() => {
     let url = "";
     setViewUrl("");
@@ -322,11 +334,12 @@ export default function Gallery() {
             </Button>
           </div>
         </div>
-        <div className="storage">
+        <div className="storage-control" ref={storageRef}>
           <span>{usage || "Checking device storage…"}</span>
-          <i>
-            <b style={{ width: "12%" }} />
-          </i>
+          <button className="storage-toggle" type="button" aria-expanded={storageOpen} aria-label={usage ? `Device storage: ${usage}` : "Checking device storage"} onClick={() => setStorageOpen((open) => !open)} style={{ "--storage-used": `${usagePercent}%` } as React.CSSProperties}>
+            <span className="storage-toggle-core">⌁</span>
+          </button>
+          {storageOpen && <div className="storage-popover">{usage || "Checking device storage"}</div>}
         </div>
         <div className="gallery-tabs">
           <button
@@ -544,6 +557,7 @@ function ExpandedPhotoStrip({ photos, current, imageUrl, keyObj, onClose, onSele
   onClose: () => void; onSelect: (photo: GalleryPhoto) => void; onDownload: () => void; onShare: () => void;
 }) {
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
+  const wheelLock = useRef(false);
   const index = Math.max(0, photos.findIndex((p) => p.id === current.id));
   const adjacent = photos.slice(Math.max(0, index - 3), Math.min(photos.length, index + 4));
   const before = adjacent.filter((photo) => photos.findIndex((item) => item.id === photo.id) < index);
@@ -563,13 +577,28 @@ function ExpandedPhotoStrip({ photos, current, imageUrl, keyObj, onClose, onSele
     })();
     return () => { active = false; urls.forEach(URL.revokeObjectURL); };
   }, [current.id, photos, keyObj]);
-  return <section className="expanded-photo-strip" aria-label="Expanded photo strip">
+  const glideThumbRail = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+      event.preventDefault();
+      event.currentTarget.scrollBy({ left: event.deltaY, behavior: "smooth" });
+    }
+  };
+  const changeFromTrackpad = (event: React.WheelEvent<HTMLElement>) => {
+    if (Math.abs(event.deltaX) < 18 || Math.abs(event.deltaX) <= Math.abs(event.deltaY) || wheelLock.current) return;
+    event.preventDefault();
+    const nextIndex = event.deltaX > 0 ? index + 1 : index - 1;
+    if (nextIndex < 0 || nextIndex >= photos.length) return;
+    wheelLock.current = true;
+    onSelect(photos[nextIndex]);
+    window.setTimeout(() => { wheelLock.current = false; }, 420);
+  };
+  return <section className="expanded-photo-strip" aria-label="Expanded photo strip" onWheel={changeFromTrackpad}>
     <div className="expanded-strip-heading"><span>Expanded memory strip</span><button type="button" onClick={onClose} aria-label="Close strip"><X /> Close strip</button></div>
     <div className="expanded-strip-row">
       <button className="expanded-strip-arrow" type="button" disabled={index === 0} onClick={() => onSelect(photos[index - 1])} aria-label="Previous photo">‹</button>
-      <div className="expanded-strip-thumbs expanded-strip-thumbs-before">{before.map((photo) => <button key={photo.id} type="button" onClick={() => onSelect(photo)}><img src={thumbs[photo.id] ?? ""} alt="" /></button>)}</div>
-      <div className="expanded-strip-main">{imageUrl ? <img src={imageUrl} alt="Expanded gallery photo" style={{ width: "auto", height: "min(70dvh, 720px)", maxWidth: "100%", objectFit: "contain" }} /> : <Lock />}</div>
-      <div className="expanded-strip-thumbs expanded-strip-thumbs-after">{after.map((photo) => <button key={photo.id} type="button" onClick={() => onSelect(photo)}><img src={thumbs[photo.id] ?? ""} alt="" /></button>)}</div>
+      <div className="expanded-strip-thumbs expanded-strip-thumbs-before" onWheel={glideThumbRail}>{before.map((photo) => <button key={photo.id} type="button" onClick={() => onSelect(photo)}><img src={thumbs[photo.id] ?? ""} alt="" /></button>)}</div>
+      <div className="expanded-strip-main">{imageUrl ? <img key={`${current.id}-${imageUrl}`} className="expanded-strip-main-photo" src={imageUrl} alt="Expanded gallery photo" style={{ width: "auto", height: "min(70dvh, 720px)", maxWidth: "100%", objectFit: "contain" }} /> : <Lock />}</div>
+      <div className="expanded-strip-thumbs expanded-strip-thumbs-after" onWheel={glideThumbRail}>{after.map((photo) => <button key={photo.id} type="button" onClick={() => onSelect(photo)}><img src={thumbs[photo.id] ?? ""} alt="" /></button>)}</div>
       <button className="expanded-strip-arrow" type="button" disabled={index === photos.length - 1} onClick={() => onSelect(photos[index + 1])} aria-label="Next photo">›</button>
     </div>
     <div className="expanded-strip-actions"><Button onClick={onDownload}><Download /> Download</Button><Button onClick={onShare}><Share2 /> Share</Button></div>

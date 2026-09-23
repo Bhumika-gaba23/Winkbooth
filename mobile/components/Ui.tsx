@@ -1,0 +1,9 @@
+import { PropsWithChildren } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { themes } from "@/constants/theme";
+import { useBoothStore } from "@/store/booth";
+
+export function Title({ eyebrow, children, copy }: PropsWithChildren<{ eyebrow?: string; copy?: string }>) { const p = themes[useBoothStore((s) => s.theme)]; return <View style={styles.title}><>{eyebrow && <Text style={[styles.eyebrow, { color: p.pink }]}>{eyebrow}</Text>}<Text style={[styles.heading, { color: p.ink }]}>{children}</Text>{copy && <Text style={[styles.copy, { color: p.muted }]}>{copy}</Text>}</></View>; }
+export function Button({ children, onPress, kind = "outline", disabled = false }: PropsWithChildren<{ onPress: () => void; kind?: "primary" | "outline"; disabled?: boolean }>) { const p = themes[useBoothStore((s) => s.theme)]; return <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.button, { borderColor: p.ink, backgroundColor: kind === "primary" ? p.yellow : p.surface, opacity: disabled ? .45 : pressed ? .78 : 1 }]}><Text style={[styles.buttonText, { color: p.ink }]}>{children}</Text></Pressable>; }
+export function Card({ children }: PropsWithChildren) { const p = themes[useBoothStore((s) => s.theme)]; return <View style={[styles.card, { backgroundColor: p.surface, borderColor: p.ink + "30" }]}>{children}</View>; }
+const styles = StyleSheet.create({ title: { paddingTop: 10 }, eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 1.7, textTransform: "uppercase" }, heading: { marginTop: 7, fontSize: 36, lineHeight: 39, fontFamily: "serif", fontWeight: "700" }, copy: { marginTop: 7, fontSize: 15, lineHeight: 21 }, button: { minHeight: 48, borderWidth: 1.5, borderRadius: 14, alignItems: "center", justifyContent: "center", paddingHorizontal: 14 }, buttonText: { fontSize: 14, fontWeight: "800" }, card: { borderWidth: 1, borderRadius: 20, padding: 14, gap: 10 } });

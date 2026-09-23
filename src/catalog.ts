@@ -308,6 +308,23 @@ export const filters: FilterPreset[] = rawFilters.map(([name, css]) => ({
 }));
 const motifs = ["✿", "★", "♥", "◌", "☻", "✦", "❀", "◆", "☁", "♬", "☀", "◇"];
 const cats = ["Y2K", "Characters", "Animals", "Floral", "Toys"];
+const framePalettes: [string, string, string][] = [
+  ["#bf6f8c", "#f5ddd8", "#673043"], ["#e7aa57", "#fff0be", "#71491e"],
+  ["#79b8cb", "#dff5fb", "#24566c"], ["#82b59b", "#e4f2df", "#285747"],
+  ["#a789ad", "#f0e3f4", "#524160"], ["#dc967b", "#ffe4d2", "#704238"],
+  ["#c9829a", "#f9e5e0", "#753b54"], ["#7695c7", "#dfe8fb", "#30456d"],
+  ["#9bb86b", "#edf4d5", "#465f26"], ["#e27f8f", "#ffe1e4", "#7a3747"],
+  ["#c0a2d9", "#eee6fb", "#55436d"], ["#d6b849", "#fff7c7", "#66551a"],
+  ["#6ebeb6", "#dcf5ef", "#285c59"], ["#d88964", "#ffe3d3", "#713c2b"],
+  ["#8f9dd0", "#e8eaff", "#3e4778"], ["#8daa82", "#e4f0df", "#3b5a37"],
+  ["#cf6683", "#fbe0e8", "#722e45"], ["#b68662", "#f5e1cf", "#623e2c"],
+  ["#c99b7b", "#f8e8d7", "#694330"], ["#d8b49a", "#fff0df", "#735243"],
+  ["#ad8067", "#eed6c1", "#54342a"], ["#e7c5a8", "#fff4e8", "#7b5847"],
+  ["#bf9078", "#f6dfcf", "#623d31"], ["#d6a989", "#fff0d9", "#704938"],
+  ["#9d705d", "#e8cdbb", "#4d3028"], ["#edcfb5", "#fff7ef", "#825f4d"],
+  ["#c69072", "#f5dfca", "#613d30"], ["#b58770", "#ecd1bd", "#56352c"],
+  ["#dfb99f", "#fff0e2", "#765141"], ["#a97862", "#e9c9b5", "#4f3028"],
+];
 export const frames: FrameTemplate[] = Array.from({ length: 74 }, (_, i) => ({
   id: `wink-${i + 1}`,
   name: [
@@ -329,29 +346,7 @@ export const frames: FrameTemplate[] = Array.from({ length: 74 }, (_, i) => ({
   layoutId: ["strip3", "strip4", "grid4", "single", "threeA", "pocketLabel"][
     i % 6
   ],
-  colors: [
-    [
-      ["#bf6f8c", "#f5ddd8", "#673043"],
-      ["#c9829a", "#f9e5e0", "#753b54"],
-      ["#b47c8c", "#f3dfd7", "#633f50"],
-      ["#a789ad", "#f2e2dc", "#524160"],
-      ["#c58a7c", "#f8e0d4", "#704238"],
-    ][i % 5][0],
-    [
-      ["#bf6f8c", "#f5ddd8", "#673043"],
-      ["#c9829a", "#f9e5e0", "#753b54"],
-      ["#b47c8c", "#f3dfd7", "#633f50"],
-      ["#a789ad", "#f2e2dc", "#524160"],
-      ["#c58a7c", "#f8e0d4", "#704238"],
-    ][i % 5][1],
-    [
-      ["#bf6f8c", "#f5ddd8", "#673043"],
-      ["#c9829a", "#f9e5e0", "#753b54"],
-      ["#b47c8c", "#f3dfd7", "#633f50"],
-      ["#a789ad", "#f2e2dc", "#524160"],
-      ["#c58a7c", "#f8e0d4", "#704238"],
-    ][i % 5][2],
-  ],
+  colors: framePalettes[(i * 7 + Math.floor(i / 6)) % framePalettes.length],
   motif: motifs[i % motifs.length],
 }));
 export const effects = [

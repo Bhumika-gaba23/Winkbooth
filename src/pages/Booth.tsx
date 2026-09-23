@@ -441,9 +441,9 @@ export default function Booth() {
                 ))}
               </div>
               <div className="face-size-controls" aria-label="Face filter size">
-                <button type="button" onClick={() => setFaceFilterSize((size) => Math.max(.6, +(size - .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize <= .6}>−</button>
+                <button type="button" onClick={() => setFaceFilterSize((size) => Math.max(.4, +(size - .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize <= .4}>−</button>
                 <span>Size <b>{Math.round(faceFilterSize * 100)}%</b></span>
-                <button type="button" onClick={() => setFaceFilterSize((size) => Math.min(1.6, +(size + .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize >= 1.6}>+</button>
+                <button type="button" onClick={() => setFaceFilterSize((size) => Math.min(2.4, +(size + .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize >= 2.4}>+</button>
               </div>
               {(faceFilter === "goggles" || faceFilter === "sunnies") && (
                 <label className="shade-color-control">

@@ -59,17 +59,12 @@ export function Shell({ children }: { children: ReactNode }) {
   const themeSwitcherRef = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("winkbooth.theme");
-    return ["classic", "candy", "forest", "sunrise", "lemon", "sky", "lavender", "peach", "mint"].includes(stored ?? "") ? stored! : "classic";
+    return ["classic", "sunrise", "sky", "mint"].includes(stored ?? "") ? stored! : "classic";
   });
   const themes = [
     ["classic", "Classic", "Warm paper"],
-    ["candy", "Candy", "Sweet pink"],
-    ["forest", "Forest", "Mossy calm"],
     ["sunrise", "Sunrise", "Apricot glow"],
-    ["lemon", "Lemon", "Fresh and bright"],
     ["sky", "Sky", "Clear blue"],
-    ["lavender", "Lavender", "Soft lilac"],
-    ["peach", "Peach", "Warm blush"],
     ["mint", "Mint", "Cool garden"],
   ] as const;
   useEffect(() => {

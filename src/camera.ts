@@ -192,8 +192,9 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
     filterCanvasRef = useRef<HTMLCanvasElement>(null),
     requestRef = useRef(0),
     detectedFaceRef = useRef<FaceBox | null>(null),
-    detectedLandmarksRef = useRef<FaceLandmark[] | null>(null),
-    smoothedLandmarksRef = useRef<FaceLandmark[] | null>(null);
+    detectedFacesRef = useRef<FaceBox[]>([]),
+    detectedLandmarksRef = useRef<FaceLandmark[][]>([]),
+    smoothedLandmarksRef = useRef<FaceLandmark[][]>([]);
   const [status, setStatus] = useState<
     "idle" | "loading" | "ready" | "denied" | "unsupported" | "error"
   >("idle");
@@ -258,7 +259,7 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
     let active = true;
     let frame = 0;
     let landmarker: FaceLandmarker | undefined;
-    const renderOverlay = (landmarks: { x: number; y: number }[]) => {
+    const renderOverlay = (landmarkSets: { x: number; y: number }[][]) => {
       const canvas = filterCanvasRef.current;
       if (!canvas) return;
       canvas.width = video.videoWidth;
@@ -266,10 +267,8 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (!activeFilter || !landmarks.length) return;
-      const xs = landmarks.map((point) => point.x);
-      const ys = landmarks.map((point) => point.y);
-      drawTrackedFilter(ctx, landmarks, canvas.width, canvas.height, activeFilter, filterSize, shadeColor);
+      if (!activeFilter || !landmarkSets.length) return;
+      landmarkSets.forEach((landmarks) => drawTrackedFilter(ctx, landmarks, canvas.width, canvas.height, activeFilter, filterSize, shadeColor));
     };
     const startTracking = async () => {
       try {
@@ -280,18 +279,19 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
             modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
           },
           runningMode: "VIDEO",
-          numFaces: 1,
+          numFaces: 10,
         });
         const track = () => {
           if (!active || !landmarker || !video.videoWidth) return;
-          const landmarks = landmarker.detectForVideo(video, performance.now()).faceLandmarks[0];
-          if (landmarks?.length) {
-            const smoothed = smoothLandmarks(smoothedLandmarksRef.current, landmarks, .35);
-            smoothedLandmarksRef.current = smoothed;
-            detectedLandmarksRef.current = smoothed;
-            renderOverlay(smoothed);
-            const xs = smoothed.map((point) => point.x);
-            const ys = smoothed.map((point) => point.y);
+          const landmarkSets = landmarker.detectForVideo(video, performance.now()).faceLandmarks ?? [];
+          if (landmarkSets.length) {
+            const smoothedSets = landmarkSets.map((landmarks, index) => smoothLandmarks(smoothedLandmarksRef.current[index] ?? null, landmarks, .35));
+            smoothedLandmarksRef.current = smoothedSets;
+            detectedLandmarksRef.current = smoothedSets;
+            renderOverlay(smoothedSets);
+            const primary = smoothedSets[0];
+            const xs = primary.map((point) => point.x);
+            const ys = primary.map((point) => point.y);
             const raw = {
               x: Math.min(...xs) * video.videoWidth,
               y: Math.min(...ys) * video.videoHeight,
@@ -299,6 +299,11 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
               height: (Math.max(...ys) - Math.min(...ys)) * video.videoHeight,
             };
             detectedFaceRef.current = raw;
+            detectedFacesRef.current = smoothedSets.map((face) => {
+              const faceXs = face.map((point) => point.x);
+              const faceYs = face.map((point) => point.y);
+              return { x: Math.min(...faceXs) * video.videoWidth, y: Math.min(...faceYs) * video.videoHeight, width: (Math.max(...faceXs) - Math.min(...faceXs)) * video.videoWidth, height: (Math.max(...faceYs) - Math.min(...faceYs)) * video.videoHeight };
+            });
             const bounds = video.getBoundingClientRect();
             const scale = Math.max(bounds.width / video.videoWidth, bounds.height / video.videoHeight);
             const visibleX = mirror ? video.videoWidth - raw.x - raw.width : raw.x;
@@ -338,19 +343,19 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
     x.drawImage(v, 0, 0);
     x.filter = "none";
     if (faceFilter) {
-      if (detectedLandmarksRef.current) {
-        drawTrackedFilter(x, detectedLandmarksRef.current, c.width, c.height, faceFilter, filterSize, shadeColor);
+      if (detectedLandmarksRef.current.length) {
+        detectedLandmarksRef.current.forEach((landmarks) => drawTrackedFilter(x, landmarks, c.width, c.height, faceFilter, filterSize, shadeColor));
         return c.toDataURL("image/jpeg", 0.94);
       }
       const Detector = (window as Window & { FaceDetector?: FaceDetectorConstructor }).FaceDetector;
-      let face: FaceBox = detectedFaceRef.current ?? { x: c.width * .3, y: c.height * .18, width: c.width * .4, height: c.height * .48 };
-      if (!detectedFaceRef.current && Detector) {
+      let faces: FaceBox[] = detectedFacesRef.current.length ? detectedFacesRef.current : [detectedFaceRef.current ?? { x: c.width * .3, y: c.height * .18, width: c.width * .4, height: c.height * .48 }];
+      if (!detectedFacesRef.current.length && Detector) {
         try {
-          const result = (await new Detector({ fastMode: true, maxDetectedFaces: 1 }).detect(v))[0];
-          if (result?.boundingBox) face = result.boundingBox;
+          const result = await new Detector({ fastMode: true, maxDetectedFaces: 10 }).detect(v);
+          if (result.length) faces = result.map((item) => item.boundingBox);
         } catch { /* fall back to the centered face guide */ }
       }
-      drawFaceFilter(x, face, faceFilter, shadeColor);
+      faces.forEach((face) => drawFaceFilter(x, face, faceFilter, shadeColor));
     }
     return c.toDataURL("image/jpeg", 0.94);
   }, [mirror, filterSize, photoFilter, shadeColor]);

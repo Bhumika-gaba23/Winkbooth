@@ -6,7 +6,10 @@ import {
   Film,
   Image,
   Printer,
+  RefreshCw,
   Share2,
+  Sparkles,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,13 +17,31 @@ import { db } from "../db";
 import { Button, Shell, SectionTitle } from "../components";
 import { compose, downloadBlob } from "../render";
 import { useBooth } from "../store";
+
+const captionIdeas = [
+  "Proof that the best plans are the ones you can hold. Made in WinkBooth.",
+  "Tiny frames, huge feelings.",
+  "Caught on camera, kept forever.",
+  "The kind of night we will bring up for years.",
+  "A little evidence that we had the best time.",
+  "Main-character moments, developed locally.",
+  "Four poses, one very good memory.",
+  "Somewhere between candid and iconic.",
+  "Filed under: more of this, please.",
+  "A small strip from a very sweet day.",
+  "The camera understood the assignment.",
+  "Low resolution, high emotional value.",
+];
+
 export default function ExportPage() {
   const { session, reset } = useBooth(),
     nav = useNavigate(),
     [url, setUrl] = useState(""),
     [blob, setBlob] = useState<Blob>(),
     [saved, setSaved] = useState(false),
-    [note, setNote] = useState("");
+    [note, setNote] = useState(""),
+    [previewOpen, setPreviewOpen] = useState(false),
+    [captionIndex, setCaptionIndex] = useState(0);
   useEffect(() => {
     if (session.shots.length)
       compose(session, 2).then((c) =>
@@ -32,10 +53,19 @@ export default function ExportPage() {
         }, "image/png"),
       );
   }, [session]);
+  useEffect(() => {
+    if (!previewOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreviewOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [previewOpen]);
   const toast = (s: string) => {
     setNote(s);
     setTimeout(() => setNote(""), 2600);
   };
+  const caption = captionIdeas[captionIndex];
   if (!session.shots.length)
     return (
       <Shell>
@@ -122,13 +152,21 @@ export default function ExportPage() {
           </Button>
         </div>
         <div className="export-grid">
-          <div className="export-preview">
+          <button
+            className="export-preview"
+            type="button"
+            onClick={() => url && setPreviewOpen(true)}
+            aria-label="Open full-screen photo strip preview"
+          >
             {url ? (
-              <img src={url} />
+              <>
+                <img src={url} alt="Your completed WinkBooth photo strip" />
+                <span className="export-preview-hint">Tap to inspect strip</span>
+              </>
             ) : (
               <div className="loader">Making your photo…</div>
             )}
-          </div>
+          </button>
           <aside>
             <div className="action-grid">
               <Button
@@ -200,7 +238,32 @@ export default function ExportPage() {
                 2-up on 4×6
               </Button>
             </div>
-            <div className="caption">
+            <div className="caption caption-ideas">
+              <div className="caption-heading"><Sparkles /> Caption ideas</div>
+              <p key={caption}>{caption}</p>
+              <div className="caption-actions">
+                <Button
+                  onClick={() =>
+                    setCaptionIndex((current) =>
+                      (current + 1) % captionIdeas.length,
+                    )
+                  }
+                >
+                  <RefreshCw /> New idea
+                </Button>
+                <Button
+                  kind="primary"
+                  onClick={() =>
+                    navigator.clipboard
+                      .writeText(caption)
+                      .then(() => toast("Caption copied"))
+                  }
+                >
+                  Copy caption
+                </Button>
+              </div>
+            </div>
+            <div className="caption caption-legacy">
               <p>
                 “Proof that the best plans are the ones you can hold. Made in
                 WinkBooth ✿”
@@ -242,6 +305,30 @@ export default function ExportPage() {
             </div>
           </aside>
         </div>
+        {previewOpen && url && (
+          <div
+            className="strip-lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Full-screen photo strip preview"
+            onClick={() => setPreviewOpen(false)}
+          >
+            <button
+              className="strip-lightbox-close"
+              type="button"
+              aria-label="Close full-screen preview"
+              onClick={() => setPreviewOpen(false)}
+            >
+              <X />
+            </button>
+            <img
+              src={url}
+              alt="Full-size completed WinkBooth photo strip"
+              onClick={(event) => event.stopPropagation()}
+            />
+            <p>Tap outside the strip or press Esc to close</p>
+          </div>
+        )}
         {note && <div className="toast" role="status" aria-live="polite">{note}</div>}
       </section>
     </Shell>
