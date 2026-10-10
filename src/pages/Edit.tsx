@@ -19,8 +19,8 @@ const faceFilters = [
   { name: "Puppy ears", value: "⌒⌒", color: "#7a4a35", x: .5, y: .26, scale: 2.1 },
   { name: "Kitty ears", value: "▲  ▲", color: "#e47c9c", x: .5, y: .25, scale: 1.6 },
   { name: "Bunny ears", value: "∩  ∩", color: "#f5a6c2", x: .5, y: .22, scale: 2.1 },
-  { name: "Heart crown", value: "♥  ♥  ♥", color: "#e54879", x: .5, y: .22, scale: 1.15 },
-  { name: "Star crown", value: "★  ★  ★", color: "#e2a31b", x: .5, y: .22, scale: 1.1 },
+  { name: "Butterfly clips", value: "✿  ✿", color: "#f19bc2", x: .5, y: .3, scale: 1.15 },
+  { name: "Ribbon bow", value: "⌁  ✦  ⌁", color: "#e8b7b6", x: .5, y: .22, scale: 1.15 },
   { name: "Sweet blush", value: "♡     ♡", color: "#e77896", x: .5, y: .57, scale: 1.15 },
 ];
 export default function Edit() {

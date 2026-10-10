@@ -22,12 +22,11 @@ const faceOptions = [
   { id: "puppy", name: "Puppy", symbol: "⌒⌒" },
   { id: "kitty", name: "Kitty", symbol: "▲ ▲" },
   { id: "bunny", name: "Bunny", symbol: "∩ ∩" },
-  { id: "hearts", name: "Heart crown", symbol: "♥ ♥ ♥" },
-  { id: "stars", name: "Star crown", symbol: "★ ★ ★" },
+  { id: "butterflies", name: "Butterfly clips", symbol: "✿ ✿" },
+  { id: "hearts", name: "Ribbon bow", symbol: "⌁ ✦ ⌁" },
   { id: "blush", name: "Sweet blush", symbol: "♡   ♡" },
-  { id: "goggles", name: "Bubble goggles", symbol: "◉—◉" },
   { id: "sunnies", name: "Swag shades", symbol: "◕—◕" },
-  { id: "flower", name: "Flower crown", symbol: "✿ ✿ ✿" },
+  { id: "flower", name: "Cherry cheek stamps", symbol: "● ●   ● ●" },
   { id: "freckles", name: "Cute freckles", symbol: "· · ·" },
 ];
 export default function Booth() {
@@ -449,7 +448,7 @@ export default function Booth() {
                 <span>Size <b>{Math.round(faceFilterSize * 100)}%</b></span>
                 <button type="button" onClick={() => setFaceFilterSize((size) => Math.min(2.4, +(size + .1).toFixed(1)))} disabled={!faceFilter || faceFilterSize >= 2.4}>+</button>
               </div>
-              {(faceFilter === "goggles" || faceFilter === "sunnies") && (
+              {faceFilter === "sunnies" && (
                 <label className="shade-color-control">
                   <span>Shade color</span>
                   <input type="color" value={shadeColor} onChange={(event) => setShadeColor(event.target.value)} />
