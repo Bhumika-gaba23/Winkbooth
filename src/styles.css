@@ -1109,6 +1109,29 @@ footer div {
   box-shadow: 0 24px 80px color-mix(in srgb, #000 50%, transparent);
   animation: strip-preview-in .22s ease-out;
 }
+.strip-lightbox-brand {
+  position: fixed;
+  z-index: 1;
+  top: max(19px, env(safe-area-inset-top));
+  left: max(22px, env(safe-area-inset-left));
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--paper);
+  font: 700 15px/1 "DM Sans", sans-serif;
+  letter-spacing: -.04em;
+  pointer-events: none;
+}
+.strip-lightbox-brand img {
+  display: block;
+  width: 31px;
+  height: 31px;
+  max-width: none;
+  max-height: none;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,.28));
+  box-shadow: none;
+  animation: none;
+}
 .strip-lightbox-close {
   position: fixed;
   z-index: 1;
@@ -1125,6 +1148,38 @@ footer div {
   cursor: pointer;
 }
 .strip-lightbox-close:hover { background: var(--pink); color: var(--on-accent); }
+.strip-lightbox-navigation {
+  position: fixed;
+  z-index: 2;
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 42px));
+  left: 50%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  width: min(440px, calc(100vw - 48px));
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--paper) 50%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 56%, transparent);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  backdrop-filter: blur(12px);
+  transform: translateX(-50%);
+}
+.strip-lightbox-navigation button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--paper) 75%, transparent);
+  border-radius: 999px;
+  color: var(--paper);
+  background: rgba(255,255,255,.08);
+  font: 700 11px/1 "DM Sans", sans-serif;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, transform .18s ease, opacity .18s ease;
+}
+.strip-lightbox-navigation button:hover:not(:disabled) { color: var(--ink); background: var(--paper); transform: translateY(-1px); }
+.strip-lightbox-navigation button:disabled { opacity: .36; cursor: not-allowed; }
+.strip-lightbox-navigation span { min-width: 42px; color: var(--paper); font: 800 10px/1 "DM Sans", sans-serif; letter-spacing: .1em; text-align: center; }
 .strip-lightbox p {
   position: fixed;
   bottom: max(18px, env(safe-area-inset-bottom));
@@ -1134,6 +1189,48 @@ footer div {
 }
 @keyframes strip-lightbox-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes strip-preview-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+.strip-lightbox-preview.is-swipe-up { animation: strip-preview-swipe-up .42s cubic-bezier(.16,1,.3,1) both; }
+.strip-lightbox-preview.is-swipe-down { animation: strip-preview-swipe-down .42s cubic-bezier(.16,1,.3,1) both; }
+.strip-lightbox-preview.is-deck-next,
+.strip-lightbox-preview.is-deck-previous {
+  position: relative;
+  z-index: 2;
+  animation: strip-lightbox-deck-emerge 1.02s cubic-bezier(.16,1,.3,1) both;
+}
+.strip-lightbox .strip-lightbox-previous {
+  position: fixed;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  animation: strip-lightbox-deck-recede 1.02s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes strip-preview-swipe-up {
+  0% { opacity: .62; transform: translateY(46px) scale(.965); }
+  68% { opacity: 1; transform: translateY(-10px) scale(1.012); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes strip-preview-swipe-down {
+  0% { opacity: .62; transform: translateY(-46px) scale(.965); }
+  68% { opacity: 1; transform: translateY(10px) scale(1.012); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes strip-lightbox-deck-emerge {
+  0% { z-index: 0; opacity: .28; transform: translateY(82%) scale(.94); filter: saturate(.82) brightness(.9); }
+  38% { z-index: 0; opacity: .92; transform: translateY(28%) scale(.975); filter: saturate(.94) brightness(.96); }
+  39% { z-index: 2; }
+  72% { z-index: 2; opacity: 1; transform: translateY(-2.5%) scale(1.012); filter: saturate(1) brightness(1); }
+  100% { z-index: 2; opacity: 1; transform: translateY(0) scale(1); filter: none; }
+}
+@keyframes strip-lightbox-deck-recede {
+  0% { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1); filter: brightness(1); }
+  42% { opacity: .9; transform: translate(-50%, -50%) translateY(-8px) scale(.988); filter: brightness(.96); }
+  100% { opacity: .52; transform: translate(-50%, -50%) translateY(12px) scale(.955); filter: brightness(.9); }
+}
+@media (max-width: 520px) {
+  .strip-lightbox-navigation { bottom: max(50px, calc(env(safe-area-inset-bottom) + 38px)); width: calc(100vw - 26px); }
+  .strip-lightbox-navigation button { padding-inline: 8px; font-size: 10px; }
+}
 .action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1197,6 +1294,17 @@ footer div {
 .caption-actions .button { min-height: 44px; padding: 8px 12px; }
 .caption-actions .button svg { width: 15px; }
 @keyframes caption-idea-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.edit-caption-ideas {
+  width: min(400px, 100%);
+  margin: 16px 0 0;
+  padding: 19px 20px 20px;
+  border-color: rgba(81,36,55,.2);
+  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,240,246,.86));
+  box-shadow: 0 10px 22px rgba(81,36,55,.1);
+}
+.edit-caption-ideas .caption-heading { color: #6d4053; }
+.edit-caption-ideas p { font-size: 16px; }
+.edit-caption-ideas .caption-actions .button { min-width: 134px; }
 .toast {
   position: fixed;
   bottom: 25px;
@@ -2563,6 +2671,51 @@ footer { border-top: 1px dashed var(--line); }
   box-shadow: 3px 5px 0 rgba(71,45,42,.2);
   transform: translateY(-2px) rotate(0deg);
 }
+.gallery-page .gallery-header-actions {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid rgba(71,45,42,.16);
+  border-radius: 16px;
+  background: rgba(255,250,246,.72);
+  box-shadow: 0 5px 0 rgba(71,45,42,.12), 0 10px 26px rgba(71,45,42,.08);
+}
+.gallery-page .gallery-header-actions .gallery-style-link,
+.gallery-page .gallery-header-actions .button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border-radius: 11px;
+  box-shadow: none;
+  transform: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+.gallery-page .gallery-header-actions .gallery-style-link {
+  border-color: rgba(71,45,42,.22);
+  background: rgba(255,255,255,.8);
+}
+.gallery-page .gallery-header-actions .gallery-style-link:hover {
+  background: #fff;
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+.gallery-page .gallery-header-actions .button {
+  border-color: var(--ink);
+  color: #fff9ed;
+  background: var(--ink);
+}
+.gallery-page .gallery-header-actions .button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+@media (max-width: 640px) {
+  .gallery-page .title-row > .gallery-header-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    padding: 4px;
+  }
+  .gallery-page .gallery-header-actions .gallery-style-link,
+  .gallery-page .gallery-header-actions .button { min-height: 38px; padding: 7px 9px; font-size: 10px; }
+}
 .gallery-tabs {
   max-width: 310px;
   margin: 2px 0 20px;
@@ -3314,7 +3467,10 @@ html[data-theme] select { color: var(--ink); background: var(--surface); }
 /* The edit header gets its own row on phones: never let navigation actions
    compete with the page title for horizontal space. */
 .edit-header-actions { display: flex; align-items: center; gap: 10px; }
+.export-header-actions { display: flex; align-items: center; gap: 10px; }
 @media (max-width: 640px) {
+  .export-page .export-header-actions { gap: 6px; }
+  .export-page .export-header-actions .button { padding-inline: 10px; font-size: 11px; }
   .edit-page .title-row {
     display: block;
     margin-bottom: 12px;
@@ -3356,6 +3512,250 @@ html[data-theme] select { color: var(--ink); background: var(--surface); }
     width: auto;
     margin: 0;
   }
+}
+
+/* Spiral album: a tactile, horizontally paged keepsake inside the gallery. */
+.gallery-tabs button svg { width: 15px; height: 15px; vertical-align: -3px; margin-right: 5px; }
+.spiral-album {
+  position: relative;
+  margin-top: 22px;
+  padding: clamp(20px, 4vw, 42px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 15% 12%, color-mix(in srgb, var(--yellow) 48%, transparent), transparent 28%),
+    linear-gradient(135deg, color-mix(in srgb, var(--paper) 82%, #e5b1bd), var(--cream));
+  box-shadow: 0 20px 50px rgba(68, 38, 47, .12);
+}
+.spiral-album::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .16; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.23'/%3E%3C/svg%3E"); }
+.spiral-album-heading { position: relative; z-index: 2; display: flex; align-items: end; justify-content: space-between; gap: 20px; height: auto; padding: 0 0 22px; border: 0; }
+.spiral-album-heading h2 { margin: 3px 0 0; font: 700 clamp(30px, 5vw, 54px)/.95 Fraunces, serif; letter-spacing: -.045em; }
+.spiral-kicker { color: var(--muted); font: 800 10px/1.2 "DM Sans", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.spiral-controls { display: flex; gap: 8px; }
+.spiral-controls button { width: 42px; height: 42px; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--cream); color: var(--ink); font-size: 22px; cursor: pointer; box-shadow: 2px 3px 0 color-mix(in srgb, var(--ink) 24%, transparent); transition: transform .18s ease, background .18s ease; }
+.spiral-controls button:hover { transform: translateY(-2px); background: var(--yellow); }
+.spiral-rail { position: relative; z-index: 2; display: grid; grid-auto-flow: column; grid-auto-columns: min(70vw, 480px); gap: clamp(18px, 4vw, 38px); padding: 16px 7vw 26px 20px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x mandatory; scroll-padding-inline: 20px; scrollbar-width: thin; scrollbar-color: var(--pink) transparent; }
+.spiral-page { position: relative; min-height: 500px; display: flex; flex-direction: column; justify-content: center; padding: 50px 42px 34px 64px; border: 1px solid rgba(87, 49, 54, .24); border-radius: 8px 22px 22px 8px; background: #fffaf0; box-shadow: 9px 12px 0 rgba(84, 48, 53, .14), inset 18px 0 30px rgba(102, 67, 60, .06); scroll-snap-align: center; transform: rotate(-.65deg); }
+.spiral-page:nth-child(even) { transform: rotate(.55deg) translateY(7px); background: #fff7f2; }
+.spiral-binding { position: absolute; z-index: 3; left: -13px; top: 26px; bottom: 26px; display: flex; flex-direction: column; justify-content: space-around; }
+.spiral-binding i { position: relative; display: block; width: 29px; height: 14px; border: 3px solid #6e5960; border-right: 0; border-radius: 12px 0 0 12px; background: linear-gradient(#d9c9cd, #716268 45%, #bbaeb2 70%); box-shadow: -2px 2px 2px rgba(40, 28, 31, .16); }
+.spiral-binding i::after { content: ""; position: absolute; right: -5px; top: 2px; width: 8px; height: 8px; border-radius: 50%; background: #d6c5bd; box-shadow: inset 1px 1px 2px rgba(63, 38, 36, .35); }
+.spiral-page-number { position: absolute; top: 20px; right: 23px; color: #b08a82; font: 700 12px/1 "DM Sans", sans-serif; letter-spacing: .18em; }
+.spiral-photo { display: grid; place-items: center; width: 100%; min-height: 330px; padding: 10px 10px 30px; overflow: hidden; border: 0; background: #fff; box-shadow: 4px 6px 18px rgba(66, 39, 41, .18); cursor: zoom-in; transform: rotate(-1.2deg); transition: transform .25s ease, box-shadow .25s ease; }
+.spiral-page:nth-child(even) .spiral-photo { transform: rotate(1.1deg); }
+.spiral-photo:hover { transform: rotate(0) translateY(-5px); box-shadow: 7px 12px 25px rgba(66, 39, 41, .23); }
+.spiral-photo img { width: 100%; height: 330px; display: block; object-fit: cover; background: #eadbd5; }
+.spiral-caption { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-top: 24px; }
+.spiral-caption b { font: 700 16px Fraunces, serif; }
+.spiral-caption span { color: #8c6766; font: 500 12px/1.25 "DM Sans", sans-serif; text-align: right; }
+.spiral-end-page { align-items: center; text-align: center; background: color-mix(in srgb, var(--yellow) 34%, #fffaf0); }
+.spiral-end-page > img { width: 82px; height: 82px; }
+.spiral-end-page p { margin: 20px 0; font: 700 clamp(28px, 4vw, 42px)/1.05 Fraunces, serif; }
+.spiral-hint { position: relative; z-index: 2; margin: 12px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+
+@media (max-width: 640px) {
+  .gallery-tabs { width: 100%; overflow-x: auto; justify-content: flex-start; scrollbar-width: none; }
+  .gallery-tabs::-webkit-scrollbar { display: none; }
+  .gallery-tabs button { flex: 0 0 auto; }
+  .spiral-album { margin-inline: -6px; padding: 18px 10px 24px; border-radius: 20px; }
+  .spiral-album-heading { align-items: center; padding: 0 7px 12px; }
+  .spiral-album-heading h2 { font-size: 34px; }
+  .spiral-kicker { font-size: 8px; }
+  .spiral-controls button { width: 38px; height: 38px; }
+  .spiral-rail { grid-auto-columns: calc(100vw - 60px); gap: 20px; padding: 16px 18px 25px; scroll-padding-inline: 18px; }
+  .spiral-page { min-height: 410px; padding: 42px 22px 26px 42px; }
+  .spiral-photo { min-height: 255px; padding: 7px 7px 22px; }
+  .spiral-photo img { height: 255px; }
+  .spiral-caption { display: block; margin-top: 18px; }
+  .spiral-caption span { display: block; margin-top: 4px; text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spiral-controls button, .spiral-photo { transition: none; }
+  .spiral-rail { scroll-behavior: auto; }
+}
+
+/* Continuous spiral: one shared album, with strips layering bottom-to-top. */
+.spiral-album { overflow: visible; }
+.spiral-scroll-note { max-width: 160px; color: var(--muted); font: 700 10px/1.35 "DM Sans", sans-serif; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+.spiral-stack { position: relative; width: min(640px, 100%); margin: 0 auto; padding: 22px 16px 190px; }
+.spiral-stack::before { content: ""; position: absolute; inset: 0 0 120px; border: 1px solid rgba(87,49,54,.22); border-radius: 28px; background: linear-gradient(90deg, rgba(95,58,54,.08), transparent 15%), #fffaf0; box-shadow: 10px 14px 0 rgba(84,48,53,.13); }
+.spiral-strip { position: sticky; z-index: var(--strip-z); top: calc(92px + var(--strip-index) * 10px); width: min(330px, 78%); margin: 0 auto 32vh; padding: 10px 10px 36px; border: 0; opacity: 0; background: #fff; box-shadow: 6px 10px 24px rgba(58,34,37,.22), 2px 3px 0 rgba(65,39,42,.13); transform: translateY(76px) scale(.975) rotate(var(--strip-rotate)); transform-origin: 50% 100%; will-change: transform, opacity; }
+.spiral-strip.is-visible { animation: spiral-strip-enter .78s cubic-bezier(.16,1,.3,1) var(--strip-delay) both; }
+.spiral-strip:hover, .spiral-strip:focus-within { transform: rotate(0) translateY(-5px); box-shadow: 8px 15px 30px rgba(58,34,37,.27); }
+.spiral-strip-photo { display: grid; place-items: center; width: 100%; min-height: 330px; padding: 0; overflow: hidden; border: 0; background: #eadbd5; }
+.spiral-strip-photo img { display: block; width: 100%; height: auto; max-height: 480px; object-fit: contain; }
+.spiral-strip-number { position: absolute; right: 16px; bottom: 12px; color: #ad8880; font: 800 10px/1 "DM Sans", sans-serif; letter-spacing: .16em; }
+.spiral-strip-caption { position: absolute; left: 14px; right: 48px; bottom: 11px; display: flex; align-items: baseline; gap: 8px; overflow: hidden; white-space: nowrap; }
+.spiral-strip-caption b { flex: 0 0 auto; color: #56383b; font: 700 13px/1 Fraunces, serif; }
+.spiral-strip-caption span { overflow: hidden; color: #9a7472; font: 600 9px/1 "DM Sans", sans-serif; text-overflow: ellipsis; }
+.spiral-stack-ending { position: relative; z-index: calc(var(--strip-z, 1) + 20); width: min(370px, 82%); min-height: 310px; display: grid; place-items: center; align-content: center; gap: 14px; margin: -12vh auto 0; padding: 40px; border-radius: 8px; text-align: center; background: color-mix(in srgb, var(--yellow) 35%, #fffaf0); box-shadow: 7px 11px 24px rgba(58,34,37,.2); transform: rotate(.8deg); }
+.spiral-stack-ending > img { width: 70px; height: 70px; }
+.spiral-stack-ending p { margin: 0; font: 700 clamp(26px, 5vw, 38px)/1.05 Fraunces, serif; }
+@keyframes spiral-strip-enter {
+  0% { opacity: 0; transform: translateY(76px) scale(.975) rotate(var(--strip-rotate)); }
+  65% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--strip-rotate)); }
+}
+
+@media (max-width: 640px) {
+  .spiral-scroll-note { display: none; }
+  .spiral-stack { padding: 14px 5px 150px; }
+  .spiral-stack::before { bottom: 90px; }
+  .spiral-strip { top: calc(74px + var(--strip-index) * 7px); width: min(290px, 88%); min-width: 0; margin-bottom: 28vh; padding: 7px 7px 34px; }
+  .spiral-strip-photo { min-height: 270px; }
+  .spiral-strip-photo img { max-height: 400px; }
+  .spiral-strip-caption span { display: none; }
+  .spiral-stack-ending { width: 88%; min-height: 270px; margin-top: -9vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spiral-strip, .spiral-strip.is-visible { opacity: 1; transform: rotate(var(--strip-rotate)); animation: none; transition: none; }
+}
+
+/* Interactive card deck: the next strip begins behind the active one, then
+   crosses the stacking plane and settles above it. */
+.spiral-deck {
+  /* This is a stage, rather than a flowing list.  Keeping its dimensions
+     stable stops the browser's scroll anchor moving when the next card
+     becomes active. */
+  height: 540px;
+  min-height: 0;
+  padding: 42px 20px 50px;
+  overflow: clip;
+  isolation: isolate;
+  touch-action: pan-x;
+  user-select: none;
+  overflow-anchor: none;
+}
+.spiral-album { overflow-anchor: none; }
+/* The deck inherits the old album-page pseudo element from .spiral-stack.
+   Remove that backing card so the strips sit directly on the gallery. */
+.spiral-deck::before { content: none; }
+.spiral-fullview-cue {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: clamp(18px, 8%, 84px);
+  display: grid;
+  gap: 7px;
+  max-width: 165px;
+  color: var(--muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.spiral-fullview-cue::before { content: "↗"; width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); border-radius: 50%; color: var(--pink); font: 700 16px/1 "DM Sans", sans-serif; }
+.spiral-fullview-cue b { color: var(--ink); font: 800 11px/1.2 "DM Sans", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.spiral-fullview-cue span { font: 600 13px/1.35 "DM Sans", sans-serif; }
+.spiral-deck .spiral-spine { top: 24px; bottom: 24px; }
+.spiral-deck .spiral-strip {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  z-index: var(--strip-z);
+  width: min(330px, calc(100% - 100px));
+  margin: 0;
+  opacity: 1;
+  transform: translateX(-50%) rotate(var(--strip-rotate));
+  will-change: transform, opacity;
+}
+.spiral-deck .spiral-strip-photo { height: auto; min-height: 0; }
+.spiral-deck .spiral-strip-photo img { display: block; width: 100%; height: auto; max-height: none; object-fit: contain; }
+.spiral-deck .spiral-strip.is-settled { animation: none; }
+.spiral-deck .spiral-strip.is-previous {
+  animation: spiral-deck-recede 1.02s cubic-bezier(.16,1,.3,1) both;
+}
+.spiral-deck .spiral-strip.is-incoming {
+  /* Never re-enter normal flow during the animation: that was the source
+     of the page jumping to a new scroll position on “Next strip”. */
+  position: absolute;
+  top: 42px;
+  animation: spiral-deck-emerge 1.02s cubic-bezier(.16,1,.3,1) both;
+}
+.spiral-deck .spiral-strip.is-incoming::after { content: ""; position: absolute; left: 7%; right: 7%; bottom: -15px; height: 24px; border-radius: 50%; background: rgba(70,39,43,.24); filter: blur(12px); opacity: 0; pointer-events: none; animation: spiral-deck-edge 1.02s cubic-bezier(.16,1,.3,1) both; }
+.spiral-deck .spiral-strip.is-incoming { cursor: zoom-in; }
+.spiral-deck .spiral-strip.is-incoming:focus-visible { outline: 3px solid var(--pink); outline-offset: 6px; }
+.spiral-deck .spiral-strip:hover,
+.spiral-deck .spiral-strip:focus-within {
+  transform: translateX(-50%) translateY(-5px) rotate(0);
+}
+.spiral-deck-controls { position: relative; z-index: 120; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; width: min(560px, 100%); margin: 24px auto 0; padding: 7px; border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--cream) 94%, transparent); box-shadow: 0 8px 22px rgba(62,36,42,.1); backdrop-filter: blur(10px); }
+.spiral-deck-controls button, .spiral-deck-controls a { justify-self: stretch; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); background: var(--cream); font: 800 11px/1 "DM Sans", sans-serif; text-decoration: none; cursor: pointer; box-shadow: 2px 3px 0 color-mix(in srgb, var(--ink) 22%, transparent); }
+.spiral-deck-controls button:last-child, .spiral-deck-controls a { background: var(--yellow); }
+.spiral-deck-controls button:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
+.spiral-deck-controls span { color: var(--muted); font: 800 10px/1 "DM Sans", sans-serif; letter-spacing: .12em; }
+@keyframes spiral-deck-emerge {
+  0% { z-index: 1; opacity: .28; transform: translateX(-50%) translateY(82%) scale(.94) rotate(var(--strip-rotate)); filter: saturate(.82) brightness(.9); }
+  38% { z-index: 1; opacity: .92; transform: translateX(-50%) translateY(28%) scale(.975) rotate(var(--strip-rotate)); filter: saturate(.94) brightness(.96); }
+  39% { z-index: 100; }
+  72% { z-index: 100; opacity: 1; transform: translateX(-50%) translateY(-2.5%) scale(1.012) rotate(0deg); filter: saturate(1) brightness(1); }
+  100% { z-index: var(--strip-z); opacity: 1; transform: translateX(-50%) translateY(0) scale(1) rotate(var(--strip-rotate)); filter: none; }
+}
+@keyframes spiral-deck-recede {
+  0% { transform: translateX(-50%) translateY(0) scale(1) rotate(var(--strip-rotate)); filter: brightness(1); }
+  42% { transform: translateX(-50%) translateY(-8px) scale(.988) rotate(0deg); filter: brightness(.96); }
+  100% { transform: translateX(-50%) translateY(12px) scale(.955) rotate(var(--strip-rotate)); filter: brightness(.9); }
+}
+@keyframes spiral-deck-edge {
+  0%, 18% { opacity: 0; transform: scaleX(.62); }
+  42% { opacity: .85; transform: scaleX(1); }
+  76%, 100% { opacity: 0; transform: scaleX(.72); }
+}
+
+/* Desktop keeps the entire active strip, its controls, and the next-action
+   hint inside one viewport. The image scales by its own aspect ratio, so a
+   longer strip gets smaller rather than being cropped. */
+@media (min-width: 641px) {
+  .spiral-album { padding-block: 20px 24px; }
+  .spiral-album-heading { padding-bottom: 12px; }
+  .spiral-deck {
+    height: calc(min(48dvh, 440px) + 92px);
+    min-height: 0;
+    padding: 22px 20px 28px;
+  }
+  .spiral-deck .spiral-strip { top: 22px; width: fit-content; max-width: calc(100% - 40px); }
+  .spiral-deck .spiral-strip-photo { width: fit-content; max-width: 100%; }
+  .spiral-deck .spiral-strip-photo img {
+    width: auto;
+    height: auto;
+    max-width: min(330px, calc(100vw - 210px));
+    max-height: min(48dvh, 440px);
+  }
+  .spiral-deck .spiral-strip.is-incoming { top: 22px; }
+  .spiral-deck-controls { margin-top: 16px; }
+  .spiral-hint { margin-top: 9px; }
+}
+
+@media (max-width: 640px) {
+  .spiral-deck { height: calc(min(50dvh, 400px) + 82px); min-height: 0; padding: 32px 10px 42px; }
+  .spiral-deck .spiral-strip { top: 32px; left: 50%; width: min(290px, calc(100% - 28px)); }
+  .spiral-deck .spiral-strip.is-incoming { top: 32px; }
+  .spiral-fullview-cue { display: none; }
+  .spiral-deck-controls { grid-template-columns: 1fr auto 1fr; gap: 6px; width: calc(100% - 8px); margin-top: 18px; padding: 5px; }
+  .spiral-deck-controls button, .spiral-deck-controls a { min-width: 0; padding-inline: 9px; font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spiral-deck .spiral-strip,
+  .spiral-deck .spiral-strip.is-incoming,
+  .spiral-deck .spiral-strip.is-previous { opacity: 1; transform: translateX(-50%) rotate(var(--strip-rotate)); animation: none; filter: none; }
+  .spiral-deck .spiral-strip.is-incoming::after { display: none; }
+}
+
+/* Strips belong directly to the gallery wall. Keep the controls and heading,
+   but remove the former album-sized card behind them. */
+.spiral-album {
+  margin-top: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.spiral-album::after { content: none; }
+@media (max-width: 640px) {
+  .spiral-album { margin-inline: 0; padding: 0; border-radius: 0; }
 }
 
 /* Export is a vertical flow on phones. The preview is clipped to its own

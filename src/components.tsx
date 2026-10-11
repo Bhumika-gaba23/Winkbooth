@@ -105,6 +105,7 @@ export function Shell({ children }: { children: ReactNode }) {
             ["/", "Home"],
             ["/booth", "Booth"],
             ["/gallery", "Gallery"],
+            ["/export", "My Strip"],
             ["/features", "Features"],
           ].map(([to, l]) => (
             <NavLink

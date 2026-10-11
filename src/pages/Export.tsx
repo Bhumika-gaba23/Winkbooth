@@ -5,6 +5,7 @@ import {
   Edit3,
   Film,
   Image,
+  Images,
   Printer,
   RefreshCw,
   Share2,
@@ -147,9 +148,14 @@ export default function ExportPage() {
             title="Take it home"
             copy="Download, share, print, or keep it in your gallery."
           />
-          <Button onClick={() => nav("/edit")}>
-            <Edit3 /> Edit
-          </Button>
+          <div className="export-header-actions">
+            <Button onClick={() => nav("/gallery")}>
+              <Images /> Go to gallery
+            </Button>
+            <Button onClick={() => nav("/edit")}>
+              <Edit3 /> Edit
+            </Button>
+          </div>
         </div>
         <div className="export-grid">
           <button
@@ -313,6 +319,10 @@ export default function ExportPage() {
             aria-label="Full-screen photo strip preview"
             onClick={() => setPreviewOpen(false)}
           >
+            <div className="strip-lightbox-brand" aria-label="WinkBooth">
+              <img src="/winkbooth-mark.svg" alt="" />
+              <span>WinkBooth</span>
+            </div>
             <button
               className="strip-lightbox-close"
               type="button"

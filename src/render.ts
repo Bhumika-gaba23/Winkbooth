@@ -50,7 +50,9 @@ export async function compose(session: CaptureSession, scale = 0.5) {
     "high-contrast": "contrast(1.32) saturate(1.08)",
     "faded-film": "contrast(.86) saturate(.76) brightness(1.1)",
   } as Record<string, string>)[session.effectId] ?? "none";
-  c.filter = [filter, effectFilter].filter((value) => value !== "none").join(" ") || "none";
+  const imageFilter = [filter, effectFilter]
+    .filter((value) => value !== "none")
+    .join(" ") || "none";
   for (let i = 0; i < layout.slots.length; i++) {
     const slot = layout.slots[i],
       src = session.shots[i];
@@ -62,6 +64,10 @@ export async function compose(session: CaptureSession, scale = 0.5) {
     c.beginPath();
     c.rect(x, y, w, h);
     c.clip();
+    // Set the filter inside the saved slot state. This keeps the Style-page
+    // look attached to every source photo in the exported/lightbox canvas,
+    // instead of depending on a filter value set before clipping.
+    c.filter = imageFilter;
     if (src) {
       const im = await loadImage(src);
       cover(c, im, im.naturalWidth, im.naturalHeight, x, y, w, h);
@@ -71,7 +77,31 @@ export async function compose(session: CaptureSession, scale = 0.5) {
     }
     c.restore();
   }
-  c.filter = "none";
+  if (session.effectId === "halftone") {
+    const step = Math.max(7, Math.round(canvas.width * .018));
+    const radius = Math.max(1.2, step * .16);
+    c.save();
+    c.fillStyle = "rgba(65, 33, 49, .24)";
+    for (const slot of layout.slots) {
+      const x = slot.x * canvas.width;
+      const y = slot.y * canvas.height;
+      const w = slot.w * canvas.width;
+      const h = slot.h * canvas.height;
+      c.save();
+      c.beginPath();
+      c.rect(x, y, w, h);
+      c.clip();
+      for (let py = y + step / 2; py < y + h; py += step) {
+        for (let px = x + step / 2; px < x + w; px += step) {
+          c.beginPath();
+          c.arc(px, py, radius, 0, Math.PI * 2);
+          c.fill();
+        }
+      }
+      c.restore();
+    }
+    c.restore();
+  }
   if (session.effectId === "light-leak") {
     const leak = c.createLinearGradient(0, 0, canvas.width * 0.8, canvas.height);
     leak.addColorStop(0, "rgba(255,120,170,.32)");

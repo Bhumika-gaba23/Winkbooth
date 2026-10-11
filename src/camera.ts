@@ -18,6 +18,17 @@ export type FaceGeometry = {
   bounds: { x: number; y: number; width: number; height: number };
 };
 
+function scaleFaceBox(face: FaceBox, multiplier: number) {
+  const width = face.width * multiplier;
+  const height = face.height * multiplier;
+  return {
+    x: face.x + (face.width - width) / 2,
+    y: face.y + (face.height - height) / 2,
+    width,
+    height,
+  };
+}
+
 type FilterPalette = { ink: string; surface: string; pink: string; yellow: string; green: string };
 function getFilterPalette(): FilterPalette {
   if (typeof document === "undefined") return { ink: "#33291f", surface: "#fffaf0", pink: "#e8b7b6", yellow: "#f2c94c", green: "#8ea98f" };
@@ -742,6 +753,26 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
       if (!activeFilter || !landmarkSets.length) return;
       landmarkSets.forEach((landmarks) => drawTrackedFilter(ctx, landmarks, canvas.width, canvas.height, activeFilter, filterSize, shadeColor));
     };
+    const renderFallbackOverlay = () => {
+      if (!active) return;
+      const canvas = filterCanvasRef.current;
+      if (!canvas || !video.videoWidth || !video.videoHeight) return;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!activeFilter) return;
+      drawFaceFilter(
+        ctx,
+        scaleFaceBox(
+          { x: canvas.width * .3, y: canvas.height * .18, width: canvas.width * .4, height: canvas.height * .48 },
+          filterSize,
+        ),
+        activeFilter,
+        shadeColor,
+      );
+    };
     const startTracking = async () => {
       try {
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm");
@@ -785,11 +816,21 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
               width: raw.width * scale,
               height: raw.height * scale,
             });
+          } else {
+            smoothedLandmarksRef.current = [];
+            detectedLandmarksRef.current = [];
+            detectedFacesRef.current = [];
+            setFaceBox(null);
+            renderFallbackOverlay();
           }
           frame = window.requestAnimationFrame(track);
         };
         track();
-      } catch { /* the non-tracking center guide remains available if assets cannot load */ }
+      } catch {
+        // MediaPipe loads its model from a remote host. Keep filters usable
+        // (and visibly selected) when that model is blocked or unavailable.
+        renderFallbackOverlay();
+      }
     };
     void startTracking();
     return () => { active = false; window.cancelAnimationFrame(frame); landmarker?.close(); };
@@ -827,7 +868,7 @@ export function useCamera(facingMode: "user" | "environment", mirror: boolean, a
           if (result.length) faces = result.map((item) => item.boundingBox);
         } catch { /* fall back to the centered face guide */ }
       }
-      faces.forEach((face) => drawFaceFilter(x, face, faceFilter, shadeColor));
+      faces.forEach((face) => drawFaceFilter(x, scaleFaceBox(face, filterSize), faceFilter, shadeColor));
     }
     return c.toDataURL("image/jpeg", 0.94);
   }, [mirror, filterSize, photoFilter, shadeColor]);

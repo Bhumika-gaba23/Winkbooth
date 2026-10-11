@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Copy, Redo2, RotateCcw, RotateCw, SlidersHorizontal, Trash2, Undo2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy, Redo2, RefreshCw, RotateCcw, RotateCw, SlidersHorizontal, Sparkles, Trash2, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { effects, filters, frames, layouts } from "../catalog";
@@ -23,6 +23,16 @@ const faceFilters = [
   { name: "Ribbon bow", value: "⌁  ✦  ⌁", color: "#e8b7b6", x: .5, y: .22, scale: 1.15 },
   { name: "Sweet blush", value: "♡     ♡", color: "#e77896", x: .5, y: .57, scale: 1.15 },
 ];
+const captionIdeas = [
+  "Proof that the best plans are the ones you can hold. Made in WinkBooth.",
+  "Tiny frames, huge feelings.",
+  "Caught on camera, kept forever.",
+  "The kind of night we will bring up for years.",
+  "A little evidence that we had the best time.",
+  "Main-character moments, developed locally.",
+  "Four poses, one very good memory.",
+  "Somewhere between candid and iconic.",
+];
 export default function Edit() {
   const { session, setSession } = useBooth(),
     nav = useNavigate(),
@@ -32,7 +42,9 @@ export default function Edit() {
     [history, setHistory] = useState<CaptureSession[]>([]),
     [future, setFuture] = useState<CaptureSession[]>([]),
     [mobileToolsOpen, setMobileToolsOpen] = useState(true),
-    [frameRailProgress, setFrameRailProgress] = useState(0);
+    [frameRailProgress, setFrameRailProgress] = useState(0),
+    [captionIndex, setCaptionIndex] = useState(0),
+    [captionCopied, setCaptionCopied] = useState(false);
   const layout = layouts.find((item) => item.id === session.layoutId) ?? layouts[0];
   const swapFrames = frames.filter((frame) => frame.layoutId === session.layoutId);
   const availableSwapFrames = swapFrames.length ? swapFrames : frames;
@@ -107,6 +119,7 @@ export default function Edit() {
       ],
     });
   const layer = session.overlays.find((x) => x.id === selected);
+  const caption = captionIdeas[captionIndex];
   const patchLayer = (p: Partial<OverlayLayer>) =>
     change({
       overlays: session.overlays.map((x) =>
@@ -152,6 +165,15 @@ export default function Edit() {
       setFuture([]);
     }
     dragRef.current = null;
+  };
+  const copyCaption = async () => {
+    try {
+      await navigator.clipboard.writeText(caption);
+      setCaptionCopied(true);
+      window.setTimeout(() => setCaptionCopied(false), 1600);
+    } catch {
+      // Clipboard access can be unavailable outside a secure browser context.
+    }
   };
   if (!session.shots.length)
     return (
@@ -238,6 +260,21 @@ export default function Edit() {
                 <Redo2 /> Redo
               </Button>
             </div>
+            <aside className="caption caption-ideas edit-caption-ideas" aria-label="Caption ideas">
+              <div className="caption-heading"><Sparkles /> Caption ideas</div>
+              <p key={caption}>{caption}</p>
+              <div className="caption-actions">
+                <Button onClick={() => {
+                  setCaptionCopied(false);
+                  setCaptionIndex((current) => (current + 1) % captionIdeas.length);
+                }}>
+                  <RefreshCw /> New idea
+                </Button>
+                <Button kind="primary" onClick={() => void copyCaption()}>
+                  <Copy /> {captionCopied ? "Copied!" : "Copy caption"}
+                </Button>
+              </div>
+            </aside>
             <button className={`mobile-tool-launch edit-tool-launch ${mobileToolsOpen ? "" : "tools-closed"}`} type="button" onClick={() => setMobileToolsOpen(true)}>
               <SlidersHorizontal />
               <span><b>Open editing tools</b><small>{tab} · {session.overlays.length} layers</small></span>
